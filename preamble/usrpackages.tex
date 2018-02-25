@@ -1,0 +1,159 @@
+%%%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{epigraph}
+\usepackage{hyperref}      % To make the acronyms clickable. All the other
+                           % hyperref are provided by memoir
+\usepackage{lipsum}        % To generate Lorem Ipsum filling text
+\usepackage{algpseudocode} % For algorithm environment
+\usepackage{physics}      % For \Re \Im as Re() Im() and tons of operators,
+                          % partial derivatives and more
+\usepackage[binary-units]{siunitx}      % Properly type SI units
+\usepackage{etoolbox}     % Used to alter the \chapter command to reset acronyms
+
+\usepackage{xargs}        % To define commands with more than one optional value
+\usepackage{mathtools}    % For ceiling and floor operator
+\usepackage{amsfonts}     % For \mathbb{}
+\usepackage{amssymb}      % \triangeq
+\usepackage{amsmath}
+\usepackage{xr}           % Cross reference among documents (useful for the supplementary information)
+\usepackage[printonlyused]{acronym} % Allows to define acronyms (nolist = do not create a list of acronyms)
+\usepackage{dblfloatfix}  % To enable figures at the bottom of page
+\usepackage{stackengine}  % Allow multiple diacritcs
+\usepackage{bigints}      % Big integrals
+\usepackage{steinmetz}    % For phase symbol (\phase)
+\usepackage[export]{adjustbox}    % adjustbox for rotating tables, aligning \includegraphics at top valign=t
+\usepackage[]{todonotes}
+\usepackage{xpatch}       % To patch latex commands
+\usepackage{ifdraft}
+\usepackage{tabu}         % Better tables
+%\usepackage[toc]{glossaries}
+\usepackage{enumitem}  % To customize enumerate environment (see Symbols.tex)
+
+%\usepackage{cleveref}    % \ref will write Equation (1), Figure 1
+\usepackage{environ}      % To define the extendedthesis env
+
+
+\usepackage{makecell}    % Allows line break within a table cell
+%\usepackage{subfig}
+
+%\usepackage[markup=underlined,final]{changes} %% Use "final" option to remove all
+%\usepackage{ifthen}      & To use \ifthenelse statement. This package is already imported by the template in this case.
+
+%%%%%%%%%%%%% PACKAGES RELATED DEFINITIONS %%%%%%%%%%%%%%%%%%
+% mathtools
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\sisetup{per-mode=symbol}       % Display SI units as dB/km
+                                % Accepts 'reciprocal' (dB km^-1) 'fraction' (\frac)
+
+% siuntix
+\DeclareSIUnit{\dBm}{dBm}
+
+% etoobox/acronym
+\preto\chapter\acresetall       % Prepend \acresetall to the command \chapter
+                                % \acresetall re-expand acronyms after this command
+
+% Create a new environment to put things to extende the thesis
+\newif\ifextendedthesis
+\extendedthesisfalse            % Set to false to hide the extensions of the thesis
+\NewEnviron{extendedthesis}{\ifextendedthesis\color{gray}\BODY\fi}
+
+% Full line comment for algorithms
+\algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
+
+% Patch to acronym to avoid multiple defined labels when using cleverref?
+\makeatletter
+\newcommand*{\org@overidelabel}{}
+\let\org@overridelabel\@verridelabel
+\@ifpackagelater{acronym}{2015/03/21}{% v1.41
+  \renewcommand*{\@verridelabel}[1]{%
+    \@bsphack
+    \protected@write\@auxout{}{\string\AC@undonewlabel{#1@cref}}%
+    \org@overridelabel{#1}%
+    \@esphack
+  }%
+}{% older versions
+  \renewcommand*{\@verridelabel}[1]{%
+    \@bsphack
+    \protected@write\@auxout{}{\string\undonewlabel{#1@cref}}%
+    \org@overridelabel{#1}%
+    \@esphack
+  }%
+}
+\makeatother
+
+% biblatex: Avoid long list of citations to be breaked by a newline in the middle
+\renewcommand*{\multicitedelim}{\addcomma\nobreakspace}
+% FIX: Avoid newline between last word and citation list
+
+% Make the (a) be centered in a figure if no text is provided (e.g. \subtop[]{ )
+\makeatletter
+\def\@memsubfig[#1]{%
+  \@ifnextchar [%
+    {\@memsubfloat{sub\@captype}[#1]}%
+    {\@memsubfloat{sub\@captype}[\@empty #1][#1\unskip]}}
+\makeatother
+
+% Biblatex fix - Allow to write $\pi$ instead of {$\pi%} in .bib file
+\makeatletter
+\def\blx@mksc@init{%
+  \blx@mkcp@init
+  \def\blx@mkcp@nil{\noexpand\blx@mkcp@nil\noexpand}%
+  \def\i{\blx@mkcp@nil\i}\def\j{\blx@mkcp@nil\j}%
+  \def\do##1{%
+    \ifx##1\relax
+    \else
+      \def##1{\blx@mkcp@nil##1}%
+      \expandafter\do
+    \fi}%
+  \expandafter\do\@uclclist\relax
+  \let\(=$\let\)=$}
+
+\def\blx@mksc@eval{%
+  \ifx\@let@token\blx@mksc@end
+    \expandafter\blx@mksc@end
+  \fi
+  \ifx\@let@token\bgroup
+    \expandafter\blx@mksc@group
+  \fi
+  \ifx\@let@token\@sptoken
+    \expandafter\blx@mksc@space
+  \fi
+  \ifx\@let@token\blx@mkcp@nil
+    \expandafter\blx@mksc@getone
+  \fi
+  \ifx\@let@token\blx@mkcp@iec
+    \expandafter\blx@mksc@getiec
+  \fi
+  \ifx\@let@token\blx@mkcp@bbl
+    \expandafter\blx@mksc@gettwo
+  \fi
+  \ifx\@let@token\blx@mkcp@sgl
+    \expandafter\blx@mksc@gettwo
+  \fi
+  \ifx\@let@token\blx@mkcp@dbl
+    \expandafter\blx@mksc@getthree
+  \fi
+  \ifx\@let@token$%
+    \expandafter\blx@mksc@getmath
+  \fi
+  \if\noexpand\@let@token\relax
+    \expandafter\blx@mksc@cs
+  \fi
+  \blx@mksc@other}
+
+\def\blx@mksc@getmath#1\blx@mksc@other$#2${\blx@mksc@other{{$#2$}}}
+\makeatother
+
+% Patch acronym package to allow hypenation of first acronym word
+\makeatletter
+\patchcmd\@acf{\AC@acl}{\AC@foo}{}{}
+\patchcmd\@acf{\AC@acl}{\AC@foo}{}{}
+\patchcmd\@acf{\AC@foo}{\hskip\z@\AC@acl}{}{}
+\patchcmd\@acf{\AC@foo}{\hskip\z@\AC@acl}{}{}
+\makeatother
+
+
+% Ignore badboxes of less than 3pt
+\hfuzz=3pt
+%\vfuzz

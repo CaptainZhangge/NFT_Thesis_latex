@@ -1,0 +1,1325 @@
+\chapter{Nonlinear Fourier transform fundamentals}\label{ch:fundamentals}
+
+This chapter introduces the fundamental concepts required to define a \ac{NFDM}
+system, with a particular focus on the channel models and the \ac{NFT} theory.
+Section~\ref{sec:coherent_system} reviews the general structure of a coherent
+optical communication system, which constitutes the base of an \ac{NFDM} system.
+Section~\ref{sec:channel_model_NLSE} presents the evolution equation that
+provides the channel model upon which the \ac{NFT} is defined and discusses
+the normalization of this equation. Section~\ref{sec:NFT} first revises the
+Fourier method for solving linear \acp{PDE}, which is then used to introduce the
+concept of inverse scattering method for solving the \ac{NLSE}. Then the concept
+of auxiliary spectral problem is introduced together with the direct and
+inverse \ac{NFT} arriving at the definition of nonlinear spectrum. The relation
+between the nonlinear spectrum and the time domain signal is then given for the
+special case of the fundamental soliton. Section~\ref{sec:NFT_loss_and_noise}
+presents a generalized channel model that accounts for the fiber
+loss and the noise. Finally, in  Section~\ref{sec:accuracy_NFT_loss_and_noise},
+the behavior of the \ac{NFT} over this generalized channel is analyzed in terms of spectral
+distortion, and it is compared to that of the classical Fourier spectrum, which is
+used as a benchmark.
+
+\section{Coherent optical communication system}\label{sec:coherent_system}
+
+%%%%%% .FIG. COHERENT SYSTEM %%%%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{./img/CoherentSetup_v1-crop}
+  \caption{General structure of a coherent optical communication system}
+  \label{fig:coherent_setup}
+\end{figure}
+
+Modern fiber optics communication systems employ modulation of amplitude and phase of the optical field, enabled by coherent detection, together with advanced \ac{DSP} techniques to achieve unprecedented spectral efficiencies.
+
+The flexibility of having access to the full field of the signal permits designing different type of modulation formats, from conventional linear ones, like \ac{PSK} and \ac{QAM}, to more complex ones, as \ac{OFDM}, and finally to \ac{NFT}-based formats, such as \ac{NIS} and \ac{NFDM}.
+
+The main components
+of a generic coherent optical transmission system, whose block diagram is illustrated
+in \figref{fig:coherent_setup}, are now reviewed. At the transmitter the input data bits are
+processed by a \ac{DSP} chain, whose tasks are: to encode the information bits to provide
+\ac{FEC}, to map these bits to predefined symbols, and finally to produce a time-shaped digital waveform. This waveform is fed to a
+\ac{DAC}, which converts it from the digital to the analog  domain. The
+resulting electrical signal drives an optical modulator that shapes the electrical field of a
+%continuous-wave
+laser. The modulation of the \ac{I} and \ac{Q} components of the optical signal is usually performed by an external
+\ac{I}\ac{Q}-modulator employing \mz{} interferometers. The modulated optical field is
+transmitted through the fiber-optic channel, which can be composed of several
+spans of optical fiber interleaved with optical amplifiers (usually \ac{EDFA} or
+Raman amplifiers). At the output of the fiber, the received signal is detected by a
+coherent receiver, which acquires both amplitude and phase of the optical signal and linearly
+translates them into an electrical waveform. The coherent detection requires an additional laser that acts as a
+\ac{LO} and that ideally should be phase and frequency locked to the signal carrier; in practical cases this not true, and the
+small frequency offset between the \ac{LO} and the signal carrier, and their initial phase difference need to be recovered by the receiver \ac{DSP}. The analog electrical signal is digitized by the \ac{ADC}
+and then processed by the receiver \ac{DSP} chain, which synchronizes the signal, mitigates the
+various impairments added by the noisy optical-electrical channel,
+demodulates the digital waveform, and finally performs error correction in order to retrieve the information bits.
+
+The structure of a coherent optical communication system described above is very generic (for an in-depth description of it see \cite{Agrawal12_NonlinearFOs_Book, proakisdigital, seimetz2009high}), and it represents the basic skeleton of various systems, including the \ac{NFDM} system.
+The fiber-optic channel model will be presented in the next section, while the transmitter and receiver \ac{DSP} chains of a \ac{NFDM} system will be described in detail in \chref{ch:discrete_NFDM_system}.
+
+
+\section{Channel model}\label{sec:channel_model_NLSE}
+
+The principle of \ac{NFDM} communication is intimately related to the fiber channel model given by the \ac{NLSE}. Indeed, to transmit information over the fiber channel avoiding the impact of the nonlinearity, it is necessary to generate a signal that is matched to the \ac{NLSE} representing the specific channel of the system. In this section we present the integrable version of the \ac{NLSE} and its normalized version that will then be used in the following sections to define the \ac{NFT}.
+
+\subsection{Nonlinear Scr\"odinger equation}
+
+The evolution of the slowly-varying complex-valued envelope of the scalar electric
+field $\fld(\ttm,\ssp)$ propagating in a \ac{SMF} is modeled by the scalar \ac{NLSE} \cite{Agrawal12_NonlinearFOs_Book}
+\begin{extendedthesis}
+\cite[eq.~(2.3.46)]{Agrawal12_NonlinearFOs_Book}
+\end{extendedthesis}
+
+
+%%%%%% .EQ. NLSE %%
+\begin{equation}\label{eq:NLSE}
+  \frac{\partial \fld(\ttm,\ssp)}{\partial \ssp} =
+    - \iunit \dfrac{\dispersion}{2}\dfrac{\partial^2\fld(\ttm,\ssp)}{\partial \ttm^2}
+    + \iunit \nonlinfact |\fld(\ttm,\ssp)|^2 \fld(\ttm,\ssp)
+\end{equation}
+where $0\leq \ssp\leq L$ is the space coordinate with $L$ the fiber length,
+$\ttm$ is the time in the reference frame co-moving with the group velocity of
+the envelope, $\dispersion$ is the \ac{GVD}, and $\nonlinfact$
+is the nonlinear parameter.
+
+The particular form of the \ac{NLSE} in \eqref{eq:NLSE} is integrable with the inverse scattering method. However, this version of the \ac{NLSE} disregards many effects that are present in real \acp{SMF}, such as
+attenuation, higher-order dispersion, \ac{FWM}, and Raman effect, and also does not account for the noise. All these effects breaks the integrability of the \ac{NLSE} and their impact on applicability of the inverse scattering method needs to be investigated for each of them individually. The impact of the loss and the noise is investigated in Section~\ref{sec:accuracy_NFT_loss_and_noise}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% .SEC. NORMALIZED NLSE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Normalized \acl{NLSE}}\label{sec:NLSE_normalization}
+
+In order to remove any dependency on the specific channel, i.e.,  the dependency
+on the particular values of the \ac{GVD} and the nonlinear parameter, it is common to work
+with a normalized version of  the \ac{NLSE} when defining the \ac{NFT}. The
+normalized \ac{NLSE} is obtained from \eqref{eq:NLSE} by performing the change
+of variable
+
+%%%%%% .EQ. CHANGE OF VARIABLES %%%%%%
+\begin{equation}\label{eq:change_of_variables_NLSE}
+  \nfld = \dfrac{\fld}{\sqrt{P}},
+  \hspace{0.7cm} \nttm = \dfrac{\ttm}{T_0},
+  \hspace{0.7cm} \nssp = - \dfrac{\ssp}{\nftcvL}
+\end{equation}
+with $P = |\dispersion|/(\nonlinfact T_0^2)$, $\nftcvL = 2 T_0^2 /|\dispersion|$ and $T_0$ is a free normalization parameter, leading to
+%%%%%% .EQ. NLSE NORMALIZED PM %%%%%%
+\begin{equation}\label{eq:NLSE_normalized_pm}
+  \iunit \frac{\partial \nfldl}{\partial \nssp} =
+  \pm \frac{\partial^2 \nfldl}{\partial \nttm^2}
+  + 2 |\nfldl|^2 \nfldl
+\end{equation}
+where $z$ and $t$ represent the normalized space and time variables.
+The factors $P$, $T_0$ and $\nftcvL$  have physical units of power, time, and
+length, respectively, leading to the unitless set of variables in
+\eqref{eq:NLSE_normalized_pm}.
+
+The plus and minus signs  in front of the dispersion term in \eqref{eq:NLSE_normalized_pm} correspond to the cases
+of normal ($\dispersion>0$) and anomalous ($\dispersion<0$) dispersion regimes.
+In the rest of this thesis, only the anomalous dispersion regime is
+considered, since it corresponds to the dispersion regime of standard \acp{SMF} and the only one supporting solitons. For this case the normalized
+\ac{NLSE} finally results in
+%%%%%% .EQ. NLSE NORMALIZED %%%%%%
+\begin{equation}\label{eq:NLSE_normalized}
+  \iunit \pdv{\nfldl}{\nssp} = \pdv[2]{\nfldl}{\nttm}
+                             + 2 \abs{\nfldl}^2 \nfldl.
+\end{equation}
+
+The normalization of the \ac{NLSE} is only a change of variables, and for this
+reason there are several ways to normalize it.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%% .SUBSEC. NORMALIZED NLSE LITERATURE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{Normalized \aclp{NLSE} in the literature}%\label{sec:normalization_literature}
+%, even though in some cases the resulting variables are not unitless.
+In the \ac{NFT} context, it is important to always keep in mind the normalization
+used in a specific research work because different forms of the normalized
+\ac{NLSE} lead to different forms of the \ac{NFT} operators. This fact makes
+sometimes the comparison of different papers in the literature somewhat
+difficult, and the specific form of some algorithms incompatible with each
+others. The most common normalizations present in the literature are now presented.
+
+This thesis adopts the normalized \ac{NLSE} \eqref{eq:NLSE_normalized} used in one of the works that popularized the \ac{NFT} in the recent years
+\cite{Yousefi2014}, and also also appearing in other works such as
+\cite{Ablowitz2004a,Docksey2000a,hari2016multieigenvalue,
+tavakkolnia2015signalling}. We should note though, that the non-normalized \ac{NLSE} used
+in \cite{Yousefi2014} differs from \eqref{eq:NLSE} by a minus in the first term.
+
+% For the anomalous
+% dispersion case this equation can be written as
+% %%%%%% .EQ. NLSE NORMALIZED MANSOOR %%%%%%
+% \begin{equation}\label{eq:NLSE_normalized_mansoor}
+%     \iunit \pdv{\nfldl}{\nssp} = \pdv[2]{\nfldl}{\nttm}
+%                              + 2 \abs{\nfldl}^2 \nfldl
+%   \iunit \nfld[\nssp] - \nfld[\nttm\nttm] - 2|\nfld|^2 \nfld  = 0
+% \end{equation}
+% where for notation simplicity we have used the standard simplified notation for
+% partial derivatives and omit the explicit dependency on $\nssp$ and $\nttm$.
+
+
+Another popular version of the normalized \ac{NLSE}, which more resemble the
+structure of \eqref{eq:NLSE}, is
+%%%%%% .EQ. NLSE NORMALIZED AGRAWAL %%%%%%
+\begin{equation}\label{eq:NLSE_normalized_agrawal}
+    \iunit \pdv{\nfldl}{\nssp} = -\dfrac{1}{2}\pdv[2]{\nfldl}{\nttm}
+                             - \abs{\nfldl}^2 \nfldl
+\end{equation}
+and the corresponding change of variables is
+%%%%%% .EQ. CHANGE OF VARIABLES %%%%%%
+\begin{equation}\label{eq:change_of_variables_NLSE_Agrawal}
+  \nfld = \dfrac{\fld}{\sqrt{P}},
+  \hspace{0.7cm} \nttm = \dfrac{\ttm}{T_0},
+  \hspace{0.7cm} \nssp = \dfrac{\ssp}{\nftcvL}
+\end{equation}
+with $P = |\dispersion|/(\nonlinfact T_0^2)$, $\nftcvL = T_0^2 /|\dispersion|$ and $T_0$ is a free normalization parameter. Compared to this change of variable,  the one in \eqref{eq:change_of_variables_NLSE} has an additional minus and a factor 2 in the normalization of the space coordinate.
+Some of the works where this equation is used are
+\cite{Agrawal12_NonlinearFOs_Book,hasegawa1995solitons,Hasegawa,
+prilepsky2013nonlinear,desbruslais1996inverse}.
+\begin{extendedthesis}
+\cite[eq.~(5.2.5)]{Agrawal12_NonlinearFOs_Book},
+\cite[eq.~(4.0.1)]{hasegawa1995solitons}, \cite[eq.~(5.27)]{Iannone98_Book}, and
+\cite[eq.~(5)]{desbruslais1996inverse}).
+\end{extendedthesis}
+
+Finally, there is another form of the normalized \ac{NLSE}, which appears in \cite{ablowitz1974inverse,Yang10_Book,Buelow}, and that takes the form
+%%%%%% .EQ. NLSE NORMALIZED YANG %%%%%%%
+\begin{equation}\label{eq:NLSE_normalized_yang}
+    \iunit \pdv{\nfldl}{\nssp} = -\pdv[2]{\nfldl}{\nttm}
+                             - 2 \abs{\nfldl}^2 \nfldl
+\end{equation}
+and can be obtained from \eqref{eq:NLSE} using the change of variable in \eqref{eq:change_of_variables_NLSE} but replacing the change of variable
+$\ssp\rightarrow\nssp$ with $\nssp=\ssp/\nftcvL$.
+
+In \tabref{tab:normalizations_comparison_mansoor}, \tabref{tab:normalizations_comparison_agrawal}, and \tabref{tab:normalizations_comparison_yang}
+at the end of the chapter, a summary of the different forms of
+the normalized \ac{NLSE} present in the literature is given, together with the
+corresponding change of variables.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% .SEC. NONLINEAR FOURIER TRANSOFRM %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Nonlinear Fourier Transform}\label{sec:NFT}
+
+The \ac{NLSE} \eqref{eq:NLSE_normalized} belongs to a class of nonlinear
+\acp{PDE} that can be solved exactly, i.e., it is possible to find analytical
+solutions, by a mathematical method called \ac{IST}. This type of \acp{PDE} are said to
+be \textit{integrable}. Explaining the concept of integrability is out of the scope of this thesis, so we refer the reader to the works
+\cite{calogero2012integrability,hitchin2013integrable} that provide a thorough
+definition of integrability.
+
+Similarly to the linear Fourier transform method, commonly used to solve
+\acp{IVP} for linear \acp{PDE}, the \ac{IST} can be used to solve \acp{IVP} for
+nonlinear \acp{PDE} such as \eqref{eq:NLSE_normalized} \cite{ablowitz1974inverse}. The
+parallelism between the two methods has driven some authors to rename the
+\ac{IST} as \ac{NFT} \cite{Yousefi2014}, which is the name currently used in the
+engineering community~\cite{Turitsyn2017}. The name \ac{NFT} is further
+justified by the fact that in the limit of very low power of the signal
+$\nfldl$, it can be proven that the \ac{NFT} asymptotically converge to the
+Fourier transform \cite{ablowitz1974inverse}.
+% Vedi Turystin Optica [41]
+
+The Fourier method is reviewed in the next section. Given its similarity with the inverse scattering method, it can help the reader in the understanding of the second. The spectral problem and the formal definition of direct and inverse \ac{NFT} are introduced right afterwards.
+
+
+% In the case of optical communication, information is carried by the signal
+% $\nfld$. As for example, by knowing the signal $\nfld$ at the output of the
+% optical fiber $z = \fiberl$, one can use the \ac{IST} to obtain the signal at
+% the input of the fiber $\nssp=0$, thus removing the detrimental effects of fiber
+% nonlinearities and ideally recover the transmitted data.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. FOURIER METHOD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Fourier method for solving linear \aclp{PDE}}
+
+%Before introducing the \ac{NFT} it is useful to review the Fourier method used to solve linear \acp{PDE}.
+The Fourier method is a technique used to solve linear \acp{PDE}, which is useful in those cases where the considered differential equation assumes a simpler form in the Fourier domain.
+
+For example, if we consider the \ac{IVP} for the evolution equation describing the
+propagation of a signal in a linear, lossless, dispersive medium
+\cite{hasegawa1995solitons}
+%%%%%% .EQ. IVP TIME%%%%%%%
+\begin{equation}\label{eq:linear_medium_tdomain}
+ \pdv{\nfldl}{\nssp} = -\iunit \pdv[2]{\nfldl}{\nttm}, \qquad \nfld(\nttm, \nssp_0) = \nflds[0]
+\end{equation}
+where $\nflds[0]$ is a known solution at the position $\nssp_0$, we have that in the Fourier domain the \ac{IVP} takes the form
+%%%%%% .EQ. IVP FREQUENCY %%%%%%%
+\begin{equation}\label{eq:linear_medium_fdomain}
+ \pdv{\nssp} \mathcal{Q}(w,\nssp) = \iunit w^2 \mathcal{Q}(w,\nssp), \qquad \mathcal{Q}(w,\nssp_0) = \mathcal{Q}_0(w)
+\end{equation}
+where $\mathcal{Q}(w,\nssp) = \mathfrak{F}\{\nfldl \}$ is the Fourier transform of the signal $\nfldl$, and $\mathcal{Q}_0(w)$ the Fourier transform of the know solution.
+By integrating \eqref{eq:linear_medium_fdomain} in the interval $[\nssp_0, \nssp]$ we obtain
+\begin{equation}\label{eq:linear_medium_ivp_fdomain}
+ \mathcal{Q}(w,\nssp) = \exp \left( i w^2 \nssp \right) \mathcal{Q}(w,\nssp_0)
+\end{equation}
+which is the explicit space evolution equation of the Fourier spectrum of $\nfldl$.
+
+%%%%%% .FIG. FOURIER METHOD %%%%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=.6\textwidth]{./img/fourier_method-crop}
+  \caption{Scheme of the Fourier method for solving the \ac{IVP} for linear \acp{PDE}}
+  \label{fig:fourier_method}
+\end{figure}
+
+
+To compute the solution of \eqref{eq:linear_medium_tdomain} at a point in space $\nssp_1$, when a solution is known at the point $\nssp_0$, we can use the following procedure (\figref{fig:fourier_method}):
+
+\begin{enumerate}
+ \item compute the Fourier transform $\mathcal{Q}(w,\nssp_0)$ of $\nfld(\nttm,\nssp_0)$;
+ \item compute the evolution of $\mathcal{Q}(w,\nssp_0)$ from the position  $\nssp_0$ to the position $\nssp_1$ according to \eqref{eq:linear_medium_ivp_fdomain};
+ \item compute the inverse Fourier transform of  $\mathcal{Q}(w,\nssp_1)$ to obtain the solution $\nfld(\nttm,\nssp_1)$.
+\end{enumerate}
+
+A modified version of these three steps constitutes the inverse scattering method to solve an \ac{IVP} for the \ac{NLSE} as we are going to explain in the next section.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% .SUBSEC. INVERSE SCATTERING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The inverse scattering method for solving nonlinear \aclp{PDE}}
+The inverse scattering method is a procedure to solve the following \ac{IVP} for the \ac{NLSE}
+\begin{equation}\label{eq:IVP_NLSE}
+  \frac{\partial \nfldl}{\partial \nssp} =
+    i \frac{\partial^2 \nfldl}{\partial \nttm^2}
+    + 2 i |\nfldl|^2 \nfldl = 0, \hspace{0.7cm}
+    \nfld(\nttm, \nssp_0) = \nfld[0]
+\end{equation}
+where $\nfld[0]$ is a known envelope of the signal of interest at some
+position $\nssp = \nssp_0$. As for the Fourier method, the inverse scattering method requires the following three steps: a transformation from the time domain to a spectral domain, an evolution equation for the spectrum, and an inverse transformation.
+
+%%%%%% .FIG. INVERSE SCATTERING METHOD %%%%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=.6\textwidth]{./img/inverse_scattering_method-crop}
+  \caption{Scheme of the inverse scattering method for solving the \ac{IVP} for the \ac{NLSE}}
+  \label{fig:inverse_scattering_method}
+\end{figure}
+
+Although the method to solve the \ac{NLSE} using the \ac{NFT} is conceptually
+similar to the linear Fourier method presented in the previous section, the two
+transformations are rather different.
+%Firstly, the \ac{NFT} is not an integral transform as the Fourier transform.
+To define the \ac{NFT} it is first necessary to associate to the \ac{NLSE} an auxiliary problem, represented by a pair of equations and with no particular physical meaning. The first equation gives the scattering problem or
+spectral problem. In the case of the \ac{NLSE},
+it is called the \ac{ZSP} after the name of the authors that first applied the
+inverse scattering method to the \ac{NLSE} \cite{shabat1972exact}.
+The scattering problem, which depends on the signal $\nfld(\nttm, \nssp)$, can
+be solved to obtain the scattering data.
+The second equation provides a linear evolution equation for the scattering data. The relation between the
+scattering data and the signal can then be used to reconstruct the signal in a
+different point in space from the evolved scattering data
+\cite{desbruslais1996inverse}. This procedure, depicted in
+\figref{fig:inverse_scattering_method}, is very similar to the one presented in the
+previous section.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% .SUBSEC. ZS SPECTRAL PROBLEM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Inverse scattering auxiliary problem}
+The auxiliary problem for the \ac{NLSE} is defined, in the \ac{AKNS} form \cite{ablowitz1974inverse}, by
+the following pair of linear differential equations
+\begin{subequations}\label{eq:ZSP}
+  \begin{align}
+    \pdv{\eigf}{\nttm} & = \matP \eigf\label{eq:ZSP_time} \\
+    \pdv{\eigf}{\nssp} & = \matM \eigf\label{eq:ZSP_space_evolution}
+  \end{align}
+\end{subequations}
+where $\eigf$ is a vector over a Hilbert space and the matrices $\matP$, $\matM$
+are called the Lax pair. These matrices depends on the signal $\nflds$ and
+on a eigenvalue $\eig \in \CC$ (note that we dropped the space coordinate for brevity). The term eigenvalue is justified by the fact that \eqref{eq:ZSP_time} can equivalently be
+written, after simple algebra, as an eigenvalue problem
+\begin{equation}
+ \matL\eigf = \eig\eigf\label{eq:eigenvalue_problem}
+\end{equation}
+as was proposed in the original Lax formulation \cite{lax1968integrals}. $\matL$
+is a linear operator and is called the Lax operator, and $\eig$ are the
+eigenvalues of this operator.
+
+If we impose the condition that the eigenvalues are invariant upon spatial
+propagation, $\pdv{\eig}{\nssp} = 0$, the compatibility condition, $\pdv{}{\nttm}\pdv{}{\nssp}\eigf = \pdv{}{\nssp}\pdv{}{\nttm}\eigf$, of the
+system \eqref{eq:ZSP} can be written in a form called
+\textit{zero-curvature condition}~\cite{Yousefi2014}
+
+\begin{equation}\label{eq:zero_curvature_condition}
+  \pdv{\matP}{\nssp} - \pdv{\matM}{\nttm} + [\matP,\matM] = 0
+\end{equation}
+where $[\matP,\matM] = \matP\matM - \matP\matM$ is the commutator of the two
+matrices.
+By properly choosing the matrices $\matP$ and $\matM$ we can make the
+compatibility condition \eqref{eq:zero_curvature_condition} be exactly the \ac{NLSE}
+(after algebraic simplification), thus relating the original problem to the
+spectral problem. Unfortunately, there is not an analytical method to derive the matrices
+and they need to be properly guessed \cite{lax1968integrals}.
+For the \ac{NLSE} the matrices $\matP$ and $\matM$ have been found by Zakharov and Shabat and they
+are given by
+
+\begin{align}\label{P.and.M}
+  \matP =
+    \begin{pmatrix}
+      -i \eig & \nfld\\
+      -\nfld^*     & i \eig\\
+    \end{pmatrix}, \quad
+  \matM = j
+    \begin{pmatrix}
+      -2 i \eig^2 + i \abs{ \nfld }^2 & 2 \eig \nfld + i \nfld[t]\\
+      -2 \eig \nfld^* + i \nfld[t]^* & 2 i \eig^2 - i \abs{ \nfld }^2
+    \end{pmatrix}
+\end{align}
+where $^*$ denotes complex conjugation.
+The Lax pair of matrices $\matP$ and $\matM$ and the Lax operator $\matL$ are given in \tabref{tab:normalizations_comparison_mansoor} for the different normalizations of the \ac{NLSE} presented in Section~\ref{sec:NLSE_normalization}.
+
+% an Hilbert space equipped with a symplectic bilinear form
+% (sometimes referred as Wronskian) defined as
+% \begin{equation}
+%   \wron{\eigf(t)}{w(t)} = \eigf[1](t) w_2(t) - \eigf[2](t)w_1(t)
+% \end{equation}
+%
+% We report here some of the fundamental properties
+% \begin{enumerate}
+%  \item $\wron{\eigf(t)}{w(t)}$ is a constant, independent of $t$
+%  \item If $\wron{\eigf(t)}{w(t)} \ne 0 $, then $\eigf(t)$ and $w(t)$
+%  are linearly independent
+% \end{enumerate}
+
+
+Equation \eqref{eq:ZSP_time} is the \ac{ZSP} and is used to calculate the scattering data, while
+\eqref{eq:ZSP_space_evolution} defines its evolution along the spatial coordinate, as \eqref{eq:linear_medium_ivp_fdomain} describes the propagation of the
+Fourier spectrum of the know solution $\nflds[0]$.
+
+% \subsubsection{How we got here}
+%
+% The original approach of Lax was to notice that the evolution equation
+% \eqref{eq:NLSE_normalized} can be expressed as the compatibility condition
+% of two linear differential operators $\matL$ and $\matM$ through the
+% so-called Lax equation
+% \begin{equation}
+%  \pdv{\matL}{\nttm} = [\matM,\matL]
+% \end{equation}
+
+% The idea proposed originally by Lax was to associate to a nonlinear evolution
+% equation, which in our case is the \ac{NLSE} a self-adjoint linear operator
+% $\matL$ defined over a certain Hilbert space that is a function of $\nfld$.
+
+The operation of finding the scattering data given the signal $\nflds$
+is called direct scattering problem or direct \ac{NFT}, while the reverse
+operation is called inverse scattering problem or \ac{INFT}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. DIRECT NFT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Direct \acl{NFT}}\label{sec:direct_NFT_NLSE}
+
+Assuming that the signal $\nflds$ is absolutely integrable, $\nflds \in L^1(\RR)$, and that it satisifes the vanishing
+boundaries conditions, i.e., $\abs{ \nflds }\xrightarrow{} 0$ for
+$\abs{t} \xrightarrow{} \infty$,
+\begin{extendedthesis}
+    the system \eqref{eq:ZSP_time} reduces to
+
+    \begin{equation}\label{eq:zsp_at_boundary}
+    \pdv{\eigf}{t} =
+    \begin{pmatrix}
+    -i \eig & 0\\
+    0     & i \eig\\
+    \end{pmatrix}
+    \eigf,
+    \quad
+    |t|\xrightarrow{} \infty
+    \end{equation}
+    whose general solution is
+
+    \begin{equation}
+    \eigf(\nttm, \eig)
+    \begin{pmatrix}
+    \alpha e^{-i\eig\nttm}\\
+    \beta e^{i\eig\nttm}
+    \end{pmatrix},
+    \quad
+    \alpha, \beta \in \CC.
+    \end{equation}
+and
+\end{extendedthesis}
+ a possible set of solutions of \eqref{eq:ZSP}, called Jost solutions, are
+\cite{Yousefi2014}:
+% \todo{How the 'bar' solutions are defined it is not clear to me. They do not
+% solve 1.17 and they are not the symplectic conjugate of the 'nonbar' solutions
+% as Ablowitz says}
+%%%% JOST SOLUTIONS N %%%%
+\begin{subequations}\label{eq:jost}
+  \begin{align}
+  \compactmat
+  \jostn &  \rightarrow \begin{pmatrix}
+                1 \\
+                0
+              \end{pmatrix} e^{-i\eig t}; &
+  \jostnconj & \rightarrow \begin{pmatrix}
+                  0 \\
+                  1
+                \end{pmatrix} e^{i\eig t} &
+  t & \rightarrow -\infty\\
+  %%%% JOST SOLUTIONS P%%%%
+  \compactmat
+  \jostp & \rightarrow  \begin{pmatrix}
+                0  \\
+                1
+              \end{pmatrix} e^{i\eig t}; &
+  \jostpconj & \rightarrow \begin{pmatrix}
+                  1 \\
+                  0
+                \end{pmatrix} e^{-i\eig t} &
+  t & \rightarrow +\infty~.
+  \end{align}
+\end{subequations}
+\begin{extendedthesis}
+Note that the barred solutions are not the complex conjugates of the non-barred
+one and do not solve \eqref{eq:zsp_at_boundary} for $\eig$, but they need be constructed in a complicated and a still unclear way to me solving for $\eig^*$. See \cite{Yousefi2014} and the book ``Solitons and inverse scattering transform''.
+\end{extendedthesis}
+If we compute the Wronskian, defined as $\wron{u}{v} = uv - vu$, of the two
+solutions  $\jostn$ and $\jostnconj$ as $t\rightarrow - \infty$ we have
+\begin{equation}
+  \wron{\jostn}{\jostnconj} = 1
+\end{equation}
+and in the same way for $\jostp$ and $\jostpconj$ as $t\rightarrow + \infty$ we
+have
+\begin{equation}
+  \wron{\jostp}{\jostpconj} = -1.
+\end{equation}
+We conclude that the vectors of each pair are linearly independent of each other given that their Wronskian is not identically zero. For this reason
+$\{\jostn,~\jostnconj\}$ and $\{\jostp,~\jostpconj\}$ form two linearly
+dependent bases for the eigenspace associated to $\eig$.
+We can write the solutions $\jostn$ and $\jostnconj$ as a linear combination of the
+basis vectors $\{\jostp,~\jostpconj\}$ as
+
+%%%% .EQ. JOST SOLUTIONS PROJECTION %%%%
+\begin{subequations}\label{eq:jost_projection}
+  \begin{align}\label{eq:jost_projection_1}
+  \jostn&=\jostp \nftb+ \jostpconj \nfta\\
+  \jostnconj&=\jostp \nftaconj+ \jostpconj \nftbconj
+  \end{align}
+\end{subequations}
+with coefficients $a(\eig)$, $b(\eig)$, $\bar{a}(\eig)$ and $\bar{b}(\eig)$.
+These coefficients are called \textit{\scatcoef} and are time invariant. In order to not overburden the notation we omitted the explicit space
+dependence.
+%as we did the beginning of this section.
+% It can be proved that the \scatcoef, which are a function of the signal
+% $\nfld$, carry a complete information on the signal and can be used to
+% reconstruct it~\cite{Yousefi2014}.
+As it will be shown in the following sections, from the knowledge of the
+scattering coefficients, it is possible to reconstruct the signal $\nfld(t)$
+uniquely. More specifically, only the coefficients $a(\eig)$ and $b(\eig)$ are
+required given that their barred version can be derived from them \cite{Yousefi2014}.
+
+
+%\nfta(z)&=\nfta (0) & \nftaconj(z)=\nftaconj (0) \\
+%\nftb(z)&=\nftb (0)e^{-4i\omega^2z} & \nftbconj(z)=
+%\nftbconj (0)e^{4i\omega^2z}.\label{eq:scatcoef_space_evolution}
+
+The fact that the \scatcoef{} are time invariant, allows computing them at an
+arbitrary instant of time. For example, using \eqref{eq:jost_projection_1} and
+the boundary Jost solutions \eqref{eq:jost}, they can be computed at $t = +\infty$. At this
+instant both $\jostp$ and $\jostpconj$ are known. Moreover, it is possible to
+propagate $\jostn$ from $t = -\infty$, where it is known, to $t = +\infty$ by
+integrating \eqref{eq:jost_projection_1}. Given the particular structure of the
+Jost solutions it results that the first two \scatcoef{} are given by:
+
+%%%% NFT COEFFICIENTS A,B DEFINITION %%%%
+\begin{subequations}
+\begin{align}
+\nfta&=\lim_{t \to +\infty}\left[\jostn[1]\jostpconj[1]^{-1}\right]\\
+\nftb&=\lim_{t \to +\infty} \left[\jostn[2] \jostp[2]^{-1}\right]
+        % Alternative notation with submatrix
+%         \jostn[] (2:3, 1:3)^{-1}\right] \\
+\end{align}
+\end{subequations}
+where the subscript indicates the components of the Jost solution.
+Using \eqref{eq:jost} gives
+\begin{subequations}
+\begin{align}\label{eq:scattering_coefficients}
+\nfta&=\lim_{t \to +\infty}\jostn[1]e^{i\eig t}\\
+\nftb&=
+      \lim_{t \to +\infty}
+       \jostn[2] e^{-i\eig t}.
+\end{align}
+\end{subequations}
+
+
+When $\eig \in \RR$ the Jost solutions are bounded, so that the projection
+equations \eqref{eq:jost_projection} are well-defined
+% An expression is called "well-defined" (or "unambiguous") if its definition assigns it a unique interpretation or value. Otherwise, the expression is said to not be well-defined or to be ambiguous.
+and so are the scattering
+coefficients. The eigenvalues $\eig \in \RR$ form the continuous spectrum of
+the Lax operator and are often called \textit{nonlinear frequencies}.
+%The corresponding eigenfunctions are given by \eqref{eq:jost_projection} \cite{desbruslais1996inverse}.
+
+When instead $\eig$ has non-zero imaginary part, either one of the Jost
+solutions $\{\jostp,~\jostpconj\}$ diverge as $\nttm \rightarrow + \infty$. If
+we consider $\eig \in \CC^{+}$ (upper half complex plane), in order to ensure
+that $\jostn$ in $\eqref{eq:jost_projection_1}$ is not divergent we need the condition $\nfta = 0$. $\nfta$ can be extended analytically over the upper half complex plane, and this fact guarantees that $\nfta$ has a finite set of zeros that corresponds to the discrete eigenvalues of the problem \eqref{eq:ZSP_time} \cite{shabat1972exact,Ablowitz2004a}. The condition $\nfta = 0$ defines a discrete spectrum of $N$ eigenvalues
+$\{\eig[i], i=1,\dots,N\}$ of the Lax operator. If $\eig[i]$ is an eigenvalue also
+its complex conjugate is an eigenvalue \cite{Yousefi2014}. For this reason,
+considering only the eigenvalues in the upper half complex plane provides full
+knowledge on the spectrum of the Lax operator.
+% DEFINITION: Analytic function. A function defined by a power series (like the
+% exponential). Analytic continuation: Extend the function in a domain where the
+% power series, initially used to define the function, may be divergent, but the
+% function is not.
+% Watch this: https://www.youtube.com/watch?v=sD0NjbwqlYw
+The scattering coefficients corresponding to the discrete eigenvalues can be computed from $\eqref{eq:jost_projection_1}$, which under the condition $\nfta = 0$ is well-defined, and they results in
+\begin{subequations}
+  \begin{align}
+    \nfta[i]&=0\\
+    \nftb[][i]&=\lim_{t \to +\infty}
+              \jostn[2][i] e^{-i\eig[i] t}.
+  \end{align}
+\end{subequations}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% .PAR. NONLINEAR SPECTRUM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Nonlinear spectrum}
+The
+scattering data are often expressed in terms of continuous spectral amplitudes (also
+called spectral functions \cite{Yousefi2014} or reflection coefficients
+\cite{Ablowitz2004a}) as follows
+\begin{equation}
+  \cnft=\dfrac{\nftb}{\nfta} \qquad \eig\in \RR
+\end{equation}
+and discrete spectral amplitudes (also called norming constants
+\cite{Ablowitz2004a})
+\begin{equation}
+  \dnft[i]=\dfrac{\nftb[][i]}{\nftaderiv[i]} \qquad \eig[i] \in \CC^+, i = 1,\dots, N
+\end{equation}
+with $\nftaderiv[i]=\frac{da(\eig)}{d\eig}|_{\eig=\eig[i]}$ such
+that $\nfta[i]=0$ $\forall$ $\eig[i] \in \CC^+, i = 1,\dots, N$.
+
+The continuous and discrete eigenvalues together with their associated spectral
+amplitudes form the \textit{nonlinear spectrum} of the signal $\nfldl$. The
+discrete nonlinear spectrum of the signal is associated with the non-dispersive solitonic
+components of the signal while the continuous one with the dispersive (or
+radiative) waves. A representation of the nonlinear spectrum  composed by both the continuous and discrete part of a signal is shown in \figref{fig:nonlinear_spectrum}.
+
+%%%%%% .FIG. NFT SPECTRUM %%%%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=.7\textwidth]{./img/nonlinear_spectrum.pdf}
+  \caption{Absolute value of the continuous (blue) and discrete (red) spectral amplitudes corresponding to the nonlinear frequencies $\eig \in \RR$ and the discrete eigenvalues $\eig[i] \in \CC^+, i=1, 2, 3$}
+  \label{fig:nonlinear_spectrum}
+\end{figure}
+
+In a more strict mathematical sense though, the term \textit{spectrum},
+composed of a continuous and discrete part, is the set of eigenvalues of the Lax
+operator $\matL$ \cite{lax1968integrals, shabat1972exact} but in the recent \ac{NFT}
+literature \cite{prilepsky2013nonlinear,Turitsyn2017,Le2017} the term assumed a
+broader meaning.
+This is justified though by the parallelism with the Fourier transform.
+Indeed, it can be proved that when the power of the signal $\nfldl$ asymptotically approaches
+zero, the \ac{NFT} continuous spectrum converges to the linear Fourier spectrum
+and the discrete spectrum vanishes \cite{prilepsky2013nonlinear}. This justifies also the term
+nonlinear frequencies used to refer to the continuous eigenvalues; these are related to the Fourier frequencies $f$ by the relation $\eig = - \pi f $ \cite{prilepsky2013nonlinear}.
+
+
+
+In the context of the \ac{NFDM} systems, it is more convenient to work
+directly with the \scatcoef{} $\nfta$ and $\nftb$~\cite{HongKong,WahlsECOC2017};
+hence, in the rest of the manuscript, we use the term \textit{nonlinear
+spectrum} in an even broader sense to refer to the eigenvalues and the associated
+scattering data, being them either the spectral amplitudes or the scattering
+coefficients.
+
+%%%%%%%%%%%%%%%%%%%%%%%%% .PAR. SPATIAL EVOLUTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Spatial evolution}
+%%%% .FIG. NFT LINEAR-NONLINEAR EVOLUTION %%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=.8\textwidth]{./img/linear_nonlinear_spatial_evolution-crop}
+  \caption{Nonlinear evolution of the signal $\nfldl$ in the time domain and corresponding evolution of the associated nonlinear spectrum in the nonlinear domain}
+  \label{fig:nft_lin_nonlin_evolution}
+\end{figure}
+
+The spatial evolution of the scattering coefficients can be derived from
+\eqref{eq:ZSP_space_evolution} and results in ~\cite{Ablowitz2004a}
+\begin{subequations}\label{eq:scatcoef_space_evolution}
+\begin{align}
+a(\eig,z)&=a(\eig, 0) & \bar{a}(\eig,z)&=\bar{a}(\eig,0)\\
+b(\eig,z)&=b(\eig,0)e^{-4i\eig^2z} & \bar{b}(\eig,z)&=\bar{b}(\eig,0)e^{4i\eig^2z}.
+\end{align}
+\end{subequations}
+The fact that the spatial evolution of the scattering coefficients is linear is a crucial property
+of the inverse scattering method because it reveals the ``hidden'' linearity of the
+\ac{NLSE}. Equation \eqref{eq:scatcoef_space_evolution} plays the same role that
+\eqref{eq:linear_medium_fdomain} plays in the linear Fourier method, and it has
+ a similar structure.
+From the evolution of the scattering coefficients we can also derive
+the spatial evolution for the spectral amplitudes, which is given by
+\begin{subequations}\label{eq:spamps_space_evolution}
+\begin{align}
+\cnftsp, \nssp)&=\cnftsp , 0)e^{-4i\eig^2z} &\eig&\in \RR\\
+\dnftsp[i], \nssp)&=\dnftsp[i], 0)e^{-4i\eig[i]^2z} &\eig[i]&\in \CC^+, i = 1,\dots, N
+\end{align}
+\end{subequations}
+For convenience we can define the nonlinear domain transfer function of the channel modeled by the \ac{NLSE} as
+\begin{equation}\label{eq:ch_transfer_function}
+  H(\eig, \nssp) = \nftH.
+\end{equation}
+
+\figref{fig:nft_lin_nonlin_evolution} depicts the relation between the time domain signal and the nonlinear spectrum, and shows their respective evolutions in space.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. INFT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Inverse \acl{NFT}}\label{sec:INFT_NLSE}
+The last step required to completely define the inverse scattering method is to define the \ac{INFT} in order to reconstruct a signal from its nonlinear
+spectrum. This operation can be performed using
+different approaches. When the nonlinear spectrum is purely continuous, solving
+the \ac{GLM} integral equations is one of the most used approaches
+\cite{prilepsky2013nonlinear}, whereas when the spectrum is purely discrete, the
+\ac{DT} is often employed \cite{Buelow}. Many other methods, such as
+solving the Riemann-Hilbert system or the Hirota bilinearization scheme, are also
+present in the literature \cite{Yousefi2014}. In the general case when the
+spectrum is a mixture of continuous and discrete components, combinations of some of
+the above methods are also possible \cite{aref2016demonstration}.
+
+The work presented in this thesis addresses systems where the information is encoded in the discrete nonlinear spectrum, focusing on the DT as INFT method.
+The \ac{INFT}
+based on the \ac{DT} for eigenvalue communications was proposed
+in~\cite{Yousefi2014a}. The method consists in adding iteratively discrete
+eigenvalues to the nonlinear spectrum while simultaneously updating the signal
+in the time domain. The Darboux theorem is now reviewed, and then it used in a procedure to perform the \ac{INFT}.
+
+
+
+
+
+Let $\vecv$ be a column vector solution of the \ac{ZSP} \eqref{eq:ZSP_time} for the
+signal $\nflds$ and the eigenvalue $\eig$.
+In brief, the Darboux theorem~\cite{matveev1991darboux} states that we can construct a new
+solution $\nfldsmod$ of the \ac{NLSE}, whose discrete nonlinear spectrum is the
+the  spectrum of $\nflds$ together with a new eigenvalue $\eig[0]$.
+Moreover, the theorem also provides the new solutions $\hat{\vecv}$ of the \ac{ZSP}
+\eqref{eq:ZSP_time} associated to the new field $\nfldsmod$.
+More precisely the theorem states that a solution $\hat{\vecv}$ of
+\eqref{eq:ZSP_time} for $\eig$ and the modified field $\nfldsmod$, can be constructed
+using the \ac{DT}, defined as follows
+\begin{align}\label{eq:darboux_eigenvectors_update}
+  \hat{\vecv}=\left(\eig \mathcal{\matr{I}}_2-\matr{G}_0\right)\vecv
+\end{align}
+where $\mathcal{\matr{I}}_2$ is the $2\times2$ identity matrix,
+$\matr{G}_0=\auxsolmat \matr{M}_0\auxsolmat^{-1}$ with
+\begin{align}\label{eq:auxsol_matrix}
+ \auxsolmat= \begin{pmatrix}
+       \auxsol_1 & \auxsol_2^* \\
+       \auxsol_2 & -\auxsol_1^*
+     \end{pmatrix}
+\end{align}
+and where  $\matr{M}_0=\diagmatr(\lambda_0,~\lambda_0^*)$ and $
+\auxsol=(\auxsol_1,~\auxsol_2)^T$ is a solution of \eqref{eq:ZSP} for the seed
+signal $\nflds$ and the spectral parameter $\eig[0]$.
+The Darboux theorem provides also the new signal in the time domain
+\mbox{$\nfldsmod$} as a function of the old signal $\nflds$, of the  auxiliary solution $\auxsol$,
+and of the spectral parameter $\lambda_0$:
+\begin{equation}\label{eq:darboux_signal_update}
+  \nfldsmod=\nflds+2i(\lambda_0^*-\lambda_0)
+  \frac{\auxsol_2^*\auxsol_1}{|\auxsol_1|^2 + |\auxsol_2|^2}
+\end{equation}
+The spectral parameter $\eig[0]$ is an eigenvalue for $\nfldsmod$.
+
+%%%% .FIG. DARBOUX %%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[height=.2078\textwidth]{./img/darboux_eig_const_0}
+  \includegraphics[height=.2\textwidth]{./img/darboux_eig_const_1}
+  \includegraphics[height=.2\textwidth]{./img/darboux_eig_const_2}
+  \includegraphics[height=.2\textwidth]{./img/darboux_eig_const_3}
+  \\
+  \includegraphics[height=.2078\textwidth]{./img/darboux_waveform_0}
+  \includegraphics[height=.2\textwidth]{./img/darboux_waveform_1}
+  \includegraphics[height=.2\textwidth]{./img/darboux_waveform_2}
+  \includegraphics[height=.2\textwidth]{./img/darboux_waveform_3}
+  \includegraphics[height=.25\textwidth]{./img/darboux_scheme_lower_v1-crop}
+  %\includegraphics[width=.7\textwidth]{./img/darboux_scheme_v2-crop.pdf}
+  \caption{Schematic of the \ac{DT}. The S-node is the signal update operation
+    corresponding to \eqref{eq:darboux_signal_update}, and the E-node is the
+    eigenvector update operation corresponding to
+\eqref{eq:darboux_eigenvectors_update}. At
+the step $i=1,2,3$ the auxiliary solution $\auxsol$\textsuperscript{(i)} for
+$\eig = \eig[i]$ (red arrow) modifies the signal $\nfld$\textsuperscript{(i-1)}$(\nttm)$
+and the auxiliary solutions $\auxsol^{(k)}, k=i+1,\dots,3$ (blue arrows). %The seed null signal
+%$\nfld$\textsuperscript{(0)}$(\nttm)$ entering the first S-node is transformed
+%after each step so that a new eigenvalue $\eig[i]$ is added to its discrete nonlinear spectrum,
+%as shown in the four insets in the upper part of the figure
+}
+  \label{fig:darbouxlower}
+\end{figure}
+
+Using the Darboux theorem it is possible to develop a recursive procedure, which, starting from the
+``vacuum'' solution $\nflds = 0$, builds the signal associated to a discrete
+nonlinear spectrum containing an arbitrary large number of discrete eigenvalues. The procedure is sketched in \figurename~\ref{fig:darbouxlower} and a pseudo-code is reported in Algorithm~\ref{alg:darboux_transform}.
+At the step $i = 1,\dots, N$ of the procedure, where $N$ is the total number of eigenvalues, the time domain signal $\nfld^{(i-1)}(\nttm)$ is updated using \eqref{eq:darboux_signal_update} and the auxiliary solution $\auxsol^{(i)}$. Moreover the auxiliary solutions $\auxsol^{(k)}, k=i+1, \dots, N$ are transformed according to \eqref{eq:darboux_eigenvectors_update}.
+The generic auxiliary solution $\auxsol$\textsuperscript{(k)} that satisfies
+the \ac{ZSP} for the eigenvalue $\eig[k]$ reads:
+$\auxsol$\textsuperscript{(k)}
+$=(A$\textsuperscript{(k)}$e^{-i\eig[k]t},~B$\textsuperscript{(k)}$e^{
+\iunit \eig[k]t})$ (being $\{A$\textsuperscript{(k)}$,~B$\textsuperscript{(k)}$\}$)
+some initialization constants). Hence after adding $i$ eigenvalues the auxiliary
+solutions are modified according to the following chain of matrix
+multiplications
+\stackMath
+\begin{align}
+\begin{pmatrix}
+       \stackon[-3pt]{\auxsol}{\hat{}}_1^{(k)} \\
+       \stackon[-3pt]{\auxsol}{\hat{}}_2^{(k)}
+     \end{pmatrix}=
+     \left(\eig[k]\mathcal{\matr{I}}_2-\matr{G}_{0i}\right)...\left(\eig[k]\mathcal{\matr{I}}_2-\matr{G}_{01}\right)
+     \begin{pmatrix}
+      A^{(k)} e^{-\iunit\eig[kt]} \\
+       B^{(k)} e^{\iunit\eig[kt]}
+     \end{pmatrix}
+\end{align}
+where the $\matr{G}_{0i}$ matrices are evaluated as functions of the $i$-th auxiliary
+solution $\auxsol^{(i)}$ evaluated  after $i-1$ Darboux transformation (see also the scheme depicted in
+\figref{fig:darbouxlower}).
+
+
+The Darboux theorem states how to add eigenvalues to the spectrum of the signal
+but says nothing about the spectral amplitudes. The spectral amplitudes associated to the eigenvalue $i=1,\dots,N$ are controlled by the initialization constants $\{A^{(i)},
+B^{(i)}\}$ through the following relation \cite{Aref2016c}
+\begin{equation}
+  \dnft[i] = (\eig[i] - \eig[i]^*) \prod_{k=1,k\neq i}^{N}
+  \dfrac{\eig[i] - \eig[k]^*}{\eig[i] - \eig[k]} \times \dfrac{-B_i}{A_i}.
+\end{equation}
+By arbitrarily setting $A_i = 1$ for simplicity,  the other initialization constant for the eigenvalue $\eig[i]$ can be obtained from an arbitrary chosen spectral amplitude $\dnft[i]$ as
+\begin{equation}
+  B_i = - \dfrac{1}{\eig[i] - \eig[i]^*} \prod_{k=1,k\neq i}^{N}
+  \dfrac{\eig[i] - \eig[k]}{\eig[i] - \eig[k]^*} \times \dnft[i].
+\end{equation}
+
+If instead of defining the nonlinear spectrum in terms of spectral amplitudes,
+we define it in terms of the scattering coefficient $\nftb[][i]$, the relation
+with the initialization constants assumes the very simple form
+\begin{equation}
+  A_i = 1, \qquad B_i = - \nftb[][i].
+\end{equation}
+
+The \ac{DT} with the initialization conditions just presented defines a \ac{INFT} procedure that properly builds time domain signals from an arbitrary discrete nonlinear spectrum.
+
+%%%% .ALG. DINFT DARBOUX %%%%
+\input{algorithms/inft_darboux}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% .SUBSEC. RELATION SIGNAL-SPECTRUM %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Relation between the discrete spectrum and the
+signal in the time domain}\label{sec:spectrum_signal_relation}
+% See Mansoor Part III p.19
+% Agrawal nonlinear p140-145
+% Desbroulais
+% Bulow presentation
+In the previous sections we introduced the \ac{ZSP} and showed how to use
+the direct \ac{NFT} to solve it in order to compute the nonlinear spectrum. From
+that it is clear that the nonlinear spectrum has not an intuitive interpretation
+as opposed to the  Fourier spectrum. The analytical relation between the nonlinear spectrum
+and the corresponding time domain signal is not available in general, but it is
+known for a few specific cases. It is worth analyzing  one of these
+cases to grasp an intuition of how changing the nonlinear spectrum affects the
+time domain signal.
+
+Considering the case of a nonlinear spectrum composed by a single eigenvalue $\eig[1]$ and
+null continuous spectrum, the complex envelope of the electric field of the signal can be written as a function of the nonlinear spectrum as \cite{Ablowitz2004a}
+\begin{equation}\label{eq:spectrum_signal_relation}
+\begin{split}
+    \nfld (\nttm, 0) = &2 \Im{\eig[1]} \sech \left( 2\Im{\eig[1]}
+                       (\nttm - \nttm_1) \right)\\
+                       &\times \exp \left( -\iunit \left( 2 \Re{\eig[1]} \nttm
+                       + \phase{\dnft[1]} + \pi/2 \right) \right)
+\end{split}
+\end{equation}
+where
+\begin{equation}\label{eq:relation_delay_discrete_amplitudes}
+    \nttm_1 = \dfrac{1}{2 \Im{\eig[1]}}
+              \log \left( \dfrac{\abs{\dnft[1]}}{2 \Im{\eig[1]}} \right)
+\end{equation}
+Few things can be noted from this relation:
+\begin{itemize}
+ \item the amplitude of the signal, and so its power, is related to the
+       imaginary part of the eigenvalue, while it is independent on the discrete
+       spectral amplitude $\dnft[1]$
+ \item the time width of the pulse is inversely proportional to the imaginary
+       part of the eigenvalue and so its bandwidth is proportional to it
+ \item the phase of $\nflds$ is proportional to the phase of $\dnft[1]$
+ \item the pulse delay $\nttm[1]$ is proportional to the logarithm
+       of the absolute value of the discrete spectral amplitude $\dnft[1]$. The
+       solitions whose spectral amplitude has a radius greater than $2\Im{\eig[1]}$ are
+       retarded and those with a radius smaller than that are advanced with respect
+       a $\sech(t)$ pulse
+ \item the real part of the eigenvalue represents the frequency of the soliton, which determines its propagation velocity in the optical fiber.
+%[Agrawal p.142]
+\end{itemize}
+
+%%%%%% .FIG. SIGNAL-SPECTRUM RELATION SINGLE %%%%%%
+% \begin{figure}[t]
+%   \centering
+%   %\includegraphics[width=.7\textwidth]{./img/drafts/signal-spectrum_relation.jpg}
+% %   \subtop[]{
+%       \includegraphics[height=.22\textwidth]{./img/eig_const_sig-spectrum_single}
+% %   }
+% %   \subtop[]{
+%       \includegraphics[height=.22\textwidth]{./img/spAmp_const_sig-spectrum_single}
+%       %\label{subfig:signal_spectrum_relation_single}
+% %   }
+% %   \subtop[]{
+%       \includegraphics[height=.22\textwidth]{./img/time-signal_sig-spectrum_single_abs}
+% %   }
+% %   \subtop[]{
+%       \includegraphics[height=.22\textwidth]{./img/time-signal_sig-spectrum_single_phase}
+%       %\label{subfig:signal_spectrum_relation-single-absphase}
+% %   }
+%   \caption{Example of nonlinear spectrum with one eigenvalue $\eig[1] = \iunit 0.6$ and three different values of the scattering coefficient $\nftb[][1]$, and corresponding time domain signal (shown in terms of absolute value and phase)}
+%   \label{fig:signal_spectrum_relation_single}
+% \end{figure}
+
+%%%%%% .FIG. SIGNAL-SPECTRUM RELATION %%%%%%
+\begin{figure}[t]
+  \centering
+  %\includegraphics[width=.7\textwidth]{./img/drafts/signal-spectrum_relation.jpg}
+%   \subtop[]{
+      \includegraphics[height=.22\textwidth]{./img/eig_const_sig-spectrum_single}
+%   }
+%   \subtop[]{
+      \includegraphics[height=.22\textwidth]{./img/spAmp_const_sig-spectrum_single}
+%   }
+%   \subtop[]{
+      \includegraphics[height=.22\textwidth]{./img/time-signal_sig-spectrum_single_abs}
+%   }
+%   \subtop[]{
+      \includegraphics[height=.22\textwidth]{./img/time-signal_sig-spectrum_single_phase}
+%   }
+%   \subtop[]{
+      \includegraphics[height=.219\textwidth]{./img/eig_const_sig-spectrum_double}
+%   }
+%   \subtop[]{
+      \includegraphics[height=.219\textwidth]{./img/spAmp_const_sig-spectrum_double}
+%   }
+%   \subtop[]{
+      \includegraphics[height=.219\textwidth]{./img/time-signal_sig-spectrum_double_abs}
+%   }
+%   \subtop[]{
+      \includegraphics[height=.219\textwidth]{./img/time-signal_sig-spectrum_double_phase}
+%   }
+  \caption{Example of nonlinear spectra composed of \insetref{top} one eigenvalue $\eig[2] = \iunit0.6$ and \insetref{bottom} two eigenvalues $(\eig[1] = \iunit  0.3, \eig[2] = \iunit0.6)$ for three different values of the scattering coefficient $\nftb[][1]$ and $\nftb[][2]$, respectively. The  corresponding time domain signal (in terms of absolute value and phase) is displayed on the right}
+  \label{fig:signal_spectrum_relation}
+\end{figure}
+
+In \figref{fig:signal_spectrum_relation}~(top) an example of single eigenvalue nonlinear spectrum and its corresponding time domain signal are shown for three different values of the scattering coefficient $\nftb[][1]$. Increasing the absolute value of $\nftb[][1]$ from 3 (orange) to 15 (violet) the signal is shifted to the right by \SI{1.34}{\s}. Rotating the phase of $\nftb[][1]$ by \SI{\pi}{\radian} (green) rotates the phase of the signal by the same amount.
+
+
+
+When the discrete nonlinear spectrum contains more than one eigenvalue the
+resulting time domain signal is, in general, a nonlinear combination of
+fundamental solitons through the \ac{ZSP}, so that
+the roles played by the eigenvalues and the spectral amplitudes still apply to the
+components of the multi-soliton \cite{shabat1972exact}. Though, when the  components are mixed the relation between the nonlinear spectrum and time domain signal is less evident than the single eigenvalue case.
+% this can be seen for example at z->inf where the multi-soliton splits in
+% fundamental solitons (assuming that each eigenvalue has different real part)
+For example, in \figref{fig:signal_spectrum_relation}~(bottom) the relation is illustrated for a nonlinear spectrum with two eigenvalues. In this case changing the absolute
+value of $\nftb[][2]$ from 3 (orange) to 15 (violet) shifts the corresponding
+solitonic component to the right as in the single eigenvalue case. Rotating the phase of $\nftb[][2]$ by \SI{\pi}{\radian} (green) does not change the phase of the whole signal, but only of a portion of it, and the rotation amount varies along thi portion.
+
+%%%%%% .FIG. SIGNAL-SPECTRUM RELATION DOUBLE %%%%%%
+% \begin{figure}[htb]
+%   \centering
+% %   \subtop[]{
+%       \includegraphics[height=.219\textwidth]{./img/eig_const_sig-spectrum_double}
+% %   }
+% %   \subtop[]{
+%       \includegraphics[height=.219\textwidth]{./img/spAmp_const_sig-spectrum_double}
+%       %\label{subfig:signal_spectrum_relation-double}
+% %   }
+% %   \subtop[]{
+%       \includegraphics[height=.219\textwidth]{./img/time-signal_sig-spectrum_double_abs}
+% %   }
+% %   \subtop[]{
+%       \includegraphics[height=.219\textwidth]{./img/time-signal_sig-spectrum_double_phase}
+%       %\label{subfig:signal_spectrum_relation-absphase}
+% %   }
+%   \caption{Example of nonlinear spectrum composed of  two eigenvalues $(\eig[1] = \iunit  0.3, \eig[2] = \iunit0.6)$ for three different values of the scattering coefficient $\nftb[][2]$, and corresponding time domain signal (shown in terms of absolute value and phase)}
+%   \label{fig:signal_spectrum_relation_double}
+% \end{figure}
+
+In the next chapter, the relation among the components of the nonlinear spectrum and the properties of the time domain signal is used to discuss some design aspects of the \ac{NFDM} systems.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% .SEC. NFT LOSS-NOISE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Nonlinear Fourier transform in the presence of loss and noise}\label{sec:NFT_loss_and_noise}
+As mentioned in Section~\ref{sec:channel_model_NLSE}, the channel model described by the scalar \ac{NLSE} in \eqref{eq:NLSE} is a simplistic
+one and does not properly describe the real fiber optics channels. Among the effects not considered there are the optical fiber intrinsic loss and the noise.
+A more accurate model that accounts for these two effects is given by the following generalized version of the scalar \ac{NLSE}
+
+%% .EQ. NLSE WITH LOSS %%
+\begin{equation}\label{eq:NLSE_with_loss}
+\frac{\partial \fld(\ttm,\ssp)}{\partial \ssp} =
+-i \frac{\dispersion}{2} \frac{\partial^2 \fld(\ttm,\ssp)}{\partial \ttm^2}
++ g(\ssp)\fld(\ttm,\ssp)
++ i\nonlinfact |\fld(\ttm,\ssp)|^2 \fld(\ttm,\ssp)
++ \asenoise(\ttm,\ssp)
+\end{equation}
+where $\asenoise(\ttm,\ssp)$ is the noise term and
+\begin{equation}
+ g(\ssp) = - \dfrac{\loss}{2} + g'(\ssp)
+\end{equation}
+is the gain-loss profile given by a combination of the loss, characterized by
+the fiber-loss parameter $\loss$ and the gain profile
+$g'(\ssp)$, which depends on the amplification scheme used. We assume that the
+fiber link is divided in spans of length $\spanl$ with the same amplification
+scheme applied to each span.
+
+By using advanced amplification techniques, such as ultra-long fiber lasers distributed Raman amplification \cite{ania2006ultralong}, it is possible
+to obtain a flat gain profile over the entire link thus making $g(\ssp)
+\simeq 1 $. In this way it is possible to make \eqref{eq:NLSE_with_loss} very close
+to the ideal lossless NLSE, but perturbed by noise.
+%, which for such amplification scheme can be particularly problematic given the high RIN transfer [REF].
+When \ac{EDFA} amplification is used instead, we have $g(\ssp) = - \frac{\loss}{2} $
+for $0 < \ssp < \spanl$, where $\spanl$ is the length of the fiber between two
+amplifiers.
+
+The presence of the two new terms makes \eqref{eq:NLSE_with_loss} not
+integrable so that the inverse scattering method does not provide exact analytical solutions
+anymore. Nonetheless, if we could bring \eqref{eq:NLSE_with_loss} to a form that resemble the lossless \ac{NLSE} we could still define the \ac{NFT}. If this approximate \ac{NFT} behaves similarly to the ideal one, we could still use it to encode data and exploits its linearity properties. This is indeed possible and can be achieved by the following procedure \cite{hasegawa1995solitons}.
+
+Starting from \eqref{eq:NLSE_with_loss} we perform the change of variable
+\begin{equation}
+  \tilde{\fld}(\ttm,\ssp) \leftarrow{} \fld(\ttm,\ssp)G(\ssp)^{\frac{1}{2}}
+\end{equation}
+where
+%with twice total loss up to the point $\ssp$ given by
+\begin{equation}
+  G(\ssp) = \exp\left(2\int_{0}^{\ssp} g(\ssp') d\ssp' \right).
+\end{equation}
+In this way we obtain a \ac{NLSE} in the same form of \eqref{eq:NLSE}
+\begin{equation}\label{eq:NLSE_with_loss_after_change_var}
+\pdv{\tilde{\fld}(\ttm,\ssp)}{\ssp} =
+-i \frac{\dispersion}{2} \pdv[2]{\tilde{\fld}(\ttm,\ssp)}{\ttm}
++ i\nonlinfact(\ssp) \abs{\tilde{\fld}(\ttm,\ssp)}^2 \tilde{\fld}(\ttm,\ssp)
++ \asenoise(\ttm,\ssp)
+\end{equation}
+with a space dependent nonlinear parameter
+\begin{equation}
+ \nonlinfact(\ssp) = \nonlinfact G(\ssp).
+\end{equation}
+By averaging this parameter over one span length as
+\begin{equation}\label{eq:lpa_nonlinear_coefficient}
+  \bar{\nonlinfact} = \dfrac{1}{\spanl}\int_{0}^{\spanl} \nonlinfact(\ssp) d\ssp
+\end{equation}
+we can write the \ac{LPA}~\ac{NLSE} \cite{hasegawa1995solitons, Hasegawa:90} as
+\begin{equation}\label{eq:NLSE_LPA}
+  \pdv{\tilde{\fld} (\ttm,\ssp)}{\ssp} =
+  -i \frac{\dispersion}{2} \pdv[2]{\tilde{\fld}(\ttm,\ssp)}{\ttm}
+  + i\bar{\nonlinfact}\abs{\tilde{\fld}(\ttm,\ssp)}^2 \tilde{\fld}(\ttm,\ssp)
+  + \asenoise(\ttm,\ssp).
+\end{equation}
+The evolution equation with the modified nonlinear term can be considered the leading approximation of the lossy system when we account for the variable gain-loss profile along the optical fiber.
+The inverse scattering method can be used to solve this equation, but the obtained solutions are only
+an approximations of the real solutions of \eqref{eq:NLSE_with_loss}.
+
+For and \ac{EDFA} amplified system we have
+\begin{equation}
+  \bar{\nonlinfact} = \nonlinfact \dfrac{G_a - 1}{\logarithm (G_a)}, \qquad
+  G_a = G(\spanl) = e^{-\loss \spanl}
+\end{equation}
+and in this case the \ac{LPA} approximation precision decreases as the amplifiers spacing $\spanl$ is increased, being $\bar{\nonlinfact}$ farther from  the real $\gamma$ of the fiber. In general, in order to apply this approximation one should guarantee the condition $L_d \ll \spanl$ where $L_d = (W^2 \abs{\dispersion})^{-1}$ is the dispersion distance for the signal and $W$ is its bandwidth \cite{hasegawa1995solitons, Turitsyn2017}.
+
+In the following section, the behavior of the \ac{NFT} is discussed in more detail for the case where the underlying channel is modeled by \eqref{eq:NLSE_with_loss}.
+
+% Hasegawa states this condition for the fundamental soliton as
+% Ts^2/D where Ts is the soliton pulse with (1.76*HWHM)
+%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% .SEC. ACCURACY NFT LOSS-NOISE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Accuracy of the \acl{NFT} in the presence of loss and noise}\label{sec:accuracy_NFT_loss_and_noise}
+
+The generalized channel model just presented is of particular interested because, compared to the ideal \ac{NLSE} \eqref{eq:NLSE}, it better describes the fiber links employing \ac{EDFA} amplification, which constitute the majority of the deployed links.
+
+Over this channel the \ac{NFT} can only be defined by using the \ac{LPA} approximation, so that its behavior cannot be studied analytically. For this reason it is important to evaluate if the approximate \ac{NFT} is ``well-behaved'' in practical cases. Indeed, this is the case, as proved by several numerical \cite{le2015nonlinear,le2015modified} and experimental \cite{le201764, aref2016design} investigations.
+
+In this section we present our initial numerical results, based on \cite{gaiarin2016tolerance}, of the behavior of the \ac{NFT} spectrum over channels modeled by \eqref{eq:NLSE_with_loss}.
+We numerically analyzed in detail the effect of some system parameters (launched signal power, fiber attenuation, and \ac{AWGN}) on the \ac{NFT} continuous spectrum and compared how the same parameters influence the linear spectrum (\ac{DFT}), which was used as a reference.
+In particular we considered a simple scenario of a single isolated Gaussian pulse
+propagating in a \ac{SMF}; we measured the difference between its continuous
+nonlinear spectrum before and after the transmission in terms of \ac{NMSE}.
+
+We showed that the continuous nonlinear spectrum preserves itself better along the
+transmission link when compared to the \ac{DFT} spectrum, regardless of the presence of
+non-idealities such as fiber loss and noise. This confirmed once more that the \ac{NFT} is a promising technique in scenarios where the spectrum preservation is desirable, such as
+multi channel systems using frequency-orthogonal channels.
+
+In the following, we first introduce the numerical setup  and define the metric used to
+carry out the investigation, and then we present the numerical results.
+
+\iffalse % Already defined in previous sections
+% \section{Nonlinear Fourier Transform}
+Assuming to operate in a normalized regime as the one used in
+\cite{YaousefiPartI}, to obtain the \ac{NFT}
+continuous spectrum \cnft{} starting from the normalized time waveform \nfld,
+we first need to solve the
+eigenvalue problem $Lv = \lambda v$, where $L$ is the
+isospectral operator associated to the nonlinear Schr\"odinger equation (NLSE).
+The eigenvalue problem can be
+simplified to the system of nonlinear equations
+
+\begin{equation}\label{eigenvalue.problem}
+\deriv{\vv}{t} = \matP v, \qquad v(t_1, \lambda)e^{-j \lambda t_1}
+\end{equation}
+and must be solved for a specific $\lambda$ on the interval $[t_1,t_2]$ over
+which \nfld is defined. By using
+the resulting vector $v(t_2)$ we can obtain the two \ac{NFT} coefficients
+$a(\lambda) = v_1(t_2)e^{-j\lambda t_2}$
+and $b(\lambda) = v_2(t_2)e^{j\lambda t_2}$ from which it's possible to compute
+the continuous spectrum of
+the \ac{NFT}
+$\hat{q}(\lambda) = \frac{b(\lambda)}{a(\lambda)}, \lambda \in \mathbb{R}$
+The continuous eigenvalues $\lambda$ are related to the linear spectrum
+frequencies $f$ by the relation
+$\lambda = \pi f$. Because of this in the next sections we'll compute \cnft{}
+over the interval $\left [-\pi
+\frac{Fc}{2}, \pi \frac{Fc}{2} \right ]$, in such a way to guarantee a more
+fairly comparison with the
+linear
+spectrum.
+
+The transfer function of the channel is $H(\lambda, z) =
+e^{-4j\lambda^2 z}$ and describes the evolution of the \ac{NFT} continuous
+spectrum propagating for a
+distance of $z$ as following
+$\hat{q}(t, z) = H(\lambda, z)  \hat{q}(t, 0)$
+\fi
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. SIMULATION SETUP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Simulation setup}
+%
+%%%%%% .FIG. SIMULATION SETUP LPA %%%%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=.8\textwidth]{./img/SimulationSetupLPA_v1-crop}
+  \\
+  \vspace{4mm}
+  \includegraphics[width=.4\textwidth]{img/LPA_DFT_input_output}
+   \includegraphics[width=.4\textwidth]{img/LPA_NFT_input_output}
+  \caption{\insetref{top} Simulation setup implemented in {MATLAB\texttrademark}~and {VPI
+Transmission Maker\texttrademark}. \insetref{bottom}
+ \ac{NFT} and \ac{DFT} spectra at input and output of the fiber lossless
+channel}
+  \label{fig:setup}
+\end{figure}
+The numerical simulation setup is depicted in  \figurename~\ref{fig:setup}
+and has been performed using {VPI Transmission
+Maker\texttrademark} and the {MATLAB\texttrademark} simulation framework Robochameleon \cite{robochameleonGit}. The transmitter generates a single Gaussian pulse with \SI{50}
+{ps} \ac{FWHM}. The simulation time window is \SI{8}{\ns} and the
+simulation bandwidth is \SI{2.56}{\THz}. This choice guarantees that the pulse is well isolated, a condition required to properly compute the \ac{NFT}. An ideal laser with a
+wavelength of \SI{1550}{\nm} is used. The input waveform $\fld[in]$ is
+transmitted over a dispersion uncompensated link of \SI{1000}{km} (10$\times$100 \si{km}) \acp{SMF}. The
+fiber has a dispersion parameter $D = \SI{17}{\ps\per\nm\per\km}$ and a nonlinear
+parameter $\gamma = \SI[per-mode=reciprocal]{1.27}{\per\W\per\km}$. The fiber-loss parameter is either set to $\loss = \SI{0}{\dB\per\km}$ (lossless, ideal case) or $\loss =
+\SI{0.2}{\dB\per\km}$ (typical value for \ac{SMF}). For the lossy channel, perfect attenuation
+compensation has been achieved by using \acp{EDFA}
+after each span. \acp{EDFA} with no noise and with a noise figure of 3~dB are
+considered in two different scenarios. In the simulations where the noise is
+present, the results have been averaged over 30 realizations and the standard
+error is shown with error bars. The propagation in the fiber is simulated using
+the \ac{SSFM} with an adaptive step size allowing for a
+maximum nonlinear phase rotation of \SI{0.01}{degrees}, which was chosen to guarantee the convergence of the method. At the fiber output, an ideal coherent
+receiver is assumed to give access to the full signal field $\fld[out]$.
+
+The \ac{NFT} continuous spectra $\cnft[in]$ and $\cnft[out]$  with $\eig\in
+\CC^+$, of $\fld[in]$ and $\fld[out]$, respectively, are computed using the
+Ablowitz-Ladik method to solve the \ac{ZSP} problem as described
+in~\cite{yousefi2014information}. When the channel is lossy and \ac{EDFA} amplification is
+employed, the \ac{NFT} is computed using the \ac{LPA} method
+previously described. To compare input and output spectra, the channel inverse
+transfer function $H^{-1}(\eig, \nssp=1) = \nftInvH$ is used to compensate for the channel
+propagation, to obtain $\cnftest[in] = \nftInvH\cnft[out]$. The two spectra
+$\cnft[in]$ and $\cnftest[in]$ are then compared using the \ac{NMSE} as a metric:
+
+\begin{equation}
+ \nmse = \dfrac{ \displaystyle \bigintsss_{\eig}
+ |\cnft[in] - \cnftest[in]|^2}{\displaystyle \bigintsss_{\eig}|\cnft[in]|^2}
+\end{equation}
+
+In order to benchmark the results, linear spectra are also calculated using
+standard \ac{DFT} and the same \ac{NMSE} metric is applied. In this case \ac{EDC} is applied to the \ac{DFT} of $\fld[out]$ as shown in
+\figurename~\ref{fig:setup}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Results}
+
+\begin{extendedthesis}
+
+To investigate the impact of the noise on the \ac{NFT} spectrum, an ideal Gaussian
+pulse has been loaded with \ac{AWGN} with varying power corresponding to different levels of \ac{OSNR}
+defined in a \SI{0.1}{\nm} bandwidth. The \ac{NFT} and \ac{DFT} spectra have then been
+compared to their noiseless counterparts
+%at the input of a lossless channel
+% JUST ADD CONFUSION
+for three different signal power levels, to verify if not only the \ac{OSNR} but also the spefic power value of the signal has an impact on the \ac{NMSE}. The dependency of \ac{DFT} \ac{NMSE}
+and \ac{NFT} \ac{NMSE} on the \ac{OSNR} is depicted in \figurename~\ref{fig:osnrSweep}.
+%The \ac{NMSE} is inversely proportional to the OSNR for both transformations.
+% IS IT USEFUL TO SAY SO?
+For low signal powers the \ac{DFT} and \ac{NFT} spectra have similar shapes and it can
+be seen that they are similarly affected by the noise. As the power increases to
+\SI{-12}{ \dBm}, the \ac{NFT} continuous spectrum diverges from the \ac{DFT} and
+the first one is more affected by the noise leading to \ac{NMSE} values greater
+than those of the \ac{DFT}.
+
+
+
+%%%%%% .FIG. NMSE LOSS %%%%%%
+\begin{figure}[t]
+\centering
+    \includegraphics[width=.8\textwidth]{./img/figure_2.eps}
+    \caption{\ac{NMSE} between ideal and noise-loaded input spectra for \ac{NFT}
+    and \ac{DFT} as a function of the OSNR}
+    \label{fig:osnrSweep}
+    % \caption{\ac{NMSE} of FFT and \ac{NFT} spectra as a function of input power after 1000 km of transmission}
+\end{figure}
+
+\end{extendedthesis}
+
+To investigate the impact of the fiber losses on the \ac{NFT} continuous spectrum, an ideal Gaussian pulse is transmitted over a noise free channel considering two cases: a channel with no losses or with fiber-loss parameter $\loss =  \SI{0.2}{\dB/\km}$.
+
+%%%%%% .FIG. NMSE LOSS %%%%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=.9\textwidth]{./img/NMSE_loss}
+   \caption{\insetref{a} \ac{NMSE} between input and output (\SI{1000}{km}) continuous nonlinear spectrum and linear Fourier spectrum (\ac{DFT}) as a function of the launched signal power
+for a noiseless transmission. Fiber attenuation of \SI{0}{\dB\per\km} (light red dashed lines) and \SI{0.2}{\dB\per\km} (light blue solid lines) are compared. \insetref{b} Percentage of energy
+in the continuous nonlinear spectrum}
+    % \caption{\ac{NMSE} of FFT and \ac{NFT} spectra as a function of input power
+    % after 1000 km of transmission}
+    \label{fig:powersweep}
+\end{figure}
+
+%%%%%% .FIG. NMSE LOSS+NOISE %%%%%%
+\begin{figure}[t]
+  \centering
+   \includegraphics[width=.9\textwidth]{./img/NMSE_loss_noise}
+      \caption{\insetref{a} \ac{NMSE} between input and output (\SI{1000}{km}) continuous nonlinear spectrum and linear Fourier spectrum (\ac{DFT}) as a function of the launched signal power
+for a transmission over a fiber with loss of \SI{0.2}{\dB\per\km} and \ac{EDFA} amplification with noise figure of \SI{3}{\dB}. \insetref{b} Percentage of energy
+in the continuous \ac{NFT} spectrum }
+    % \caption{\ac{NMSE} of FFT and \ac{NFT} spectra as a function of input power
+    % after 1000 km of transmission}
+  \label{fig:powersweep_with_noise}
+\end{figure}
+In \figurename~\ref{fig:powersweep}~(a) the \ac{NMSE} as a function of the launched signal power
+is shown. In the lossless case, the \ac{DFT} \ac{NMSE} increases exponentially with the
+power due to the impact of \ac{SPM}. For power levels above
+\SI{-18}{\dBm}, the relative error is higher than 10\% making the output spectrum
+diverge significantly from the input one. Note that \ac{SPM} impairments are already
+so strong at this power, because the large guard time intervals used to account
+for the dispersive effects significantly decrease the average power, however,
+nonlinear effects depend on the pulse peak power which is \SI{22}{\dB} higher than the
+average in this setup. Above \SI{-9}{\dBm} the error flattens out to $\nmse = 4$, i.e., the maximum
+\ac{NMSE} between two spectra carrying the same energy. On the other hand, the
+\ac{NFT} \ac{NMSE} remains practically constant and below a value of \num{2e-6}
+for powers up to \SI{-10}{\dBm},
+%\note[id=SG]{Error floor \ac{NFT}: 2.52e-6, \ac{DFT}: 5.87e-6 obtained for power < 40dBm. It's
+%not a real error floor since for higher powers we have a lower error at some point}
+while for powers above this
+value it slightly increases, possibly due to the numerical precision required
+for the computation, as above \SI{-10}{\dBm} most of the energy is transferred from the
+\ac{NFT} continuous spectrum to the discrete
+one~(\figurename~\ref{fig:powersweep}~(b)). Nevertheless, the \ac{NMSE} stays below a
+value of \num{1e-4}, confirming the theoretically expected higher tolerance of the
+\ac{NFT} to nonlinear impairments.
+
+When the fiber loss is taken into account and
+compensated for by noiseless amplification, the \ac{DFT} matching improves compared
+to the lossless case as the effective nonlinearity is lowered by the presence of
+the loss. Such an improvement is not visible for the \ac{NFT} that instead performs
+worse with respect to the lossless case due to the approximate equation used to
+compute the \ac{NFT} when the channel is lossy and therefore non-integrable. The
+\ac{NMSE} increments exponentially with the power, consistently with~\cite{le2015nonlinear}.
+Nonetheless, the spectral mismatch between the \ac{NFT} spectra is still lower
+than that of the linear spectrum, even in this non-ideal case.
+
+
+In the last scenario considered, the impact of the power variations and the noise are
+evaluated simultaneously: the pulse has been transmitted over the lossy channel, and \acp{EDFA} with a
+noise figure of \SI{3}{\dB} have been used to compensate for the power loss. In
+\figurename~\ref{fig:powersweep_with_noise}~(a) the dependency of the \ac{NMSE} as a function of
+the launched signal power, and the corresponding \ac{OSNR} at the receiver, is shown.
+
+In the linear regime, the spectral matching increases with the power
+(\ac{NMSE} decreases) for both \ac{DFT} and \ac{NFT}. Once the power is increased beyond
+the linear transmission regime, the \ac{DFT} \ac{NMSE} worsens as nonlinearity impacts the
+spectral matching. The behavior of the \ac{NFT} is similar, but in this case, the
+tolerance to the nonlinearity is higher with the optimum signal launched power increased by
+\SI{3}{\dB}. %\note[id=FDR]{Is that correct? Check the minima} .
+For even higher power
+also the \ac{NFT} \ac{NMSE} starts worsening. This is believed to be caused by the
+use of the \ac{LPA} approximation.
+%\note[id=FDR]{Are we sure about this?Aston people may complain :> This is what
+% we say above, citing them. There is a penalty that has an exponential
+%dependence on the power (red solid %curve of Figure 1)}
+ Note that the peak for \SI{-6}{\dBm} launched signal power corresponds to the point where the
+first discrete eigenvalue appears, i.e., the point where the \ac{NFT} continuous
+spectrum energy is slightly different from the \ac{NFT} total energy
+%which causes the \ac{NFT} continuous spectrum to be ``peaky''
+(\figurename~\ref{fig:powersweep_with_noise}~(b)). Overall, the
+\ac{NFT} provides an \ac{NMSE} decreased by a factor of 2.85 compared to the \ac{DFT} at the
+respective optimum launched signal powers, proving its potential for nonlinear
+transmission.
+% Even tough we cannot directly map the \ac{NMSE} metric to the $Q^2$, this shows how
+% the \ac{NFT} used even in nonideal scenarios has the potential to provide improved performance compared to
+% modulation that relies on the linear spectrum.
+%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. SUMMARY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conclusion}
+% \linespread{1.2}
+% %The effect of the launch power, \ac{AWGN} and fiber loss on the \ac{NFT} continuous
+% % spectrum has been investigated %comparing the \ac{NMSE} between ideal and distorted
+% % spectrum. The error has been compared against the performance %achievable using
+% % \ac{DFT} instead of \ac{NFT}.
+%
+In this section the accuracy of the approximate channel model given by the \ac{LPA} \ac{NLSE} in presence of fiber losses and noise is evaluated  in terms of distorsion of the \ac{NFT} continuous spectrum upon spatial propagation and using the linear \ac{DFT} as reference.
+The impact of the fiber loss on the \ac{NFT} shows a
+worsening of the \ac{NMSE} when higher launched signal powers are used.
+However, a lower spectral distorsion in terms of \ac{NMSE} between
+input and output spectra is reported for the \ac{NFT} when
+compared to the \ac{DFT}. Finally, when a lossy and noisy transmission is
+considered, an improved spectral matching can be achieved by the \ac{NFT}. A
+decrement of the \ac{NMSE} of almost three times, as well as an increment in the launched signal
+power by \SI{3}{\dB} compared to the \ac{DFT}, are demonstrated. The results show that the even when using the \ac{LPA} \ac{NLSE} approximate channel model it is possible to exploit the property of spectral invariance of the ac{NFT}.
+
+%
+% % However, the \ac{NFT} shows a higher tolerance to loss with the \ac{NMSE} between
+% % input and output spectrum for % noiseless transmission showing lower values for
+% % the \ac{NFT} compared to the \ac{DFT}. Additionally, when lossy and noisy
+% % transmission is considered, a better % spectral matching can be achieved using
+% % the \ac{NFT} compared to the \ac{DFT}, enabling a decrease of the \ac{NMSE} of % almost
+% % three times and an increase in launch power by 3~dB.
+
+\section{Summary}
+In this chapter the fundamental concepts required to define an \ac{NFDM}
+system have been introduced starting from the description of a generic coherent
+optical communication system and the fiber channel model given by the \ac{NLSE}. The inverse scattering method used to solve the \ac{NLSE} has been presented togheter with the concepts of auxiliary spectral problem and nonlinear spectrum. The three components of the inverse scattering method, the \ac{NFT}, the \ac{INFT}, and the spatial evolution equation of the scattering data were discussed in detail.
+
+In the last part of the chapter, the generalized channel model described by the \ac{LPA} \ac{NLSE}, which accounts for the fiber loss has been introduced. A numerical analysis on the spectral
+distortion of the continuous nonlinear spectrum when this channel is used has also been presented to validate the channel model.
+
+%%%%%% .TAB. NLSEs NORMALIZED %%%%%%
+\input{tab/nlse_normalization}

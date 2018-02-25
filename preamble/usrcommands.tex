@@ -1,0 +1,236 @@
+%%%%%%%%%%%%%%%%%%%% ABBREVIATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%
+% Units
+\newcommand{\gbaud}{GBd}
+
+% Terms
+\newcommand{\scatcoef}{scattering coefficients}
+\newcommand{\zs}{Zakharov-Shabat}
+\newcommand{\mz}{Mach-Zehnder}
+\newcommand{\nfdmsymbol}{\ac{NFDM}-symbol}
+
+%%%%%%%%%%%%%%%%%%%%% COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Latex
+\newcommand{\figref}[1]{\figurename~\ref{#1}}       % Figure reference as 'Figure 1'
+\newcommand{\tabref}[1]{\tablename~\ref{#1}}        % Table reference as 'Table 1'
+\newcommand{\chref}[1]{\chaptername~\ref{#1}}       % chapter reference as 'Table 1'
+\newcommand{\codeword}[1]{\texttt{{#1}}}            % Italiic for pieces of code
+
+% Figures
+\newcommand{\figuresvspace}{\vspace{0.2cm}}
+\newcommand{\figuresvspacenl}{\vspace{0.2cm}\newline}
+
+% General math
+\newcommand{\RR}{\mathbb{R}}                % Set of real numbers
+\newcommand{\CC}{\mathbb{C}}                % Set of complex numbers
+\newcommand{\iunit}{i}                      % Imaginary unit
+
+% Operators
+\DeclareMathOperator*{\expectation}{E}      % Expectation
+\DeclareMathOperator*{\argmin}{argmin}      % argmin
+\DeclareMathOperator*{\argmax}{argmax}      % argmax
+\DeclareMathOperator*{\nmse}{NMSE}          % Normalized mean squared error
+\DeclareMathOperator*{\papr}{PAPR}          % Peak-to-average power ratio
+\DeclareMathOperator*{\osnr}{OSNR}          % Optical signal-to-noise ratio
+\DeclareMathOperator*{\snr}{SNR}            % Signal-to-noise ratio
+\DeclareMathOperator*{\diagmatr}{diag}      % Diagonal matrix inline
+
+
+\newcommand{\matr}[1]{\mathbf{#1}}
+
+% NLSE/Manakov
+\newcommand{\ttm}{\tau}                     % Time
+\newcommand{\ssp}{\ell}                     % Space
+\newcommand{\fld}[1][]{E_{#1}}              % Electrical field/signal
+\newcommand{\flds}[1][]{\fld[#1]            % Field/signal  with time coordinate
+                (\ttm)}
+\newcommand{\nttm}{t}                       % Normalized time
+\newcommand{\nssp}{z}                       % Normalized space
+\newcommand{\nfld}[1][]{q_{#1}}             % Normalized field/signal
+\newcommand{\nflds}[1][]{\nfld[#1]          % Normalized field/signal  with time coordinate
+                (\nttm)}
+\newcommand{\nflddig}[1][]{\nfld[#1]          % Normalized field/signal  with discrete time coordinate
+                (\nttm_n)}
+\newcommand{\nfldl}[1][]{\nfld[#1]          % Normalized field/signal  with coordinates
+                (\nttm, \nssp)}
+\newcommand{\loss}{\alpha}                  % Loss coefficient (alpha)
+\newcommand{\dispersion}{\beta_2}           % Dispersion coefficient (beta2)
+\newcommand{\nonlinfact}{\gamma}            % Nonlinear coefficient (gamma)
+\newcommand{\fiberl}{L}                     %  Fiber length
+\newcommand{\spanl}{L_{s}}                  %  Span length
+\newcommand{\nspans}{N_s}                   %  Number of spans
+
+% NFDM system
+\newcommand{\Rs}{$R_{s}$}                   % Symbol rate
+\newcommand{\Ts}{$T_{s}$}                   % Symbol period
+\newcommand{\Tsi}[1]{$T_{s,#1}$}            % Symbol period i-th
+\newcommandx{\sTx}[2][1=,2=]{\ifthenelse{   % Transmitted waveform
+  \equal{#1}{}}
+    {\fld[Tx](\ttm_{#2})}
+    {\fld[Tx,#1](\ttm_{#2})}
+  }
+\newcommandx{\sRx}[2][1=,2=]{\ifthenelse{   % Received waveform
+  \equal{#1}{}}
+    {\fld[Rx](\ttm_{#2})}
+    {\fld[Rx,#1](\ttm_{#2})}
+  }
+\newcommand{\sdTx}[1][]{\sTx[#1][n]}          % Transmitted digital waveform
+\newcommand{\sdRx}[1][]{\sRx[#1][n]}          % Received digital waveform
+\newcommand{\nfdmsymtx}{\{\eig[1], \dots, \eig[N], \nftb[][1], \dots, \nftb[][N]\}}
+\newcommand{\nfdmsymrx}{{\{\eigest[1], \dots, \eigest[N], \nftbest[][1], \dots, \nftbest[][N]\}}}
+% Other optical terms
+\newcommand{\phnoise}{\sigma_n}             % Phase noise variance
+\newcommand{\asenoise}{n}                   % ASE noise term
+
+% NFT
+\newcommand{\nftcvL}{\mathcal{L}}           % NFT characteristic length
+\newcommand{\To}{$T_{0}$}                   % NFT characteristic time
+
+\newcommand{\eig}[1][]{\lambda_{#1}}                  % Eigenvalue [1 = subscript index]
+\newcommand{\eigf}[1][]{v_{#1}}                       % Eigenfunction [1 = subscript index]
+\newcommand{\vecv}{v}  % Obsolete, use eigf           % Solution ZS problem
+\newcommand{\nfta}[1][]{a(\eig[#1])}                  % NFT coefficient 'a' [1 = subscript index]
+\newcommand{\nftaderiv}[1][]{a'(\eig[#1])}            % NFT coefficient 'a1' [1 = subscript index]
+\newcommandx{\nftb}[2][1=, 2=]{\ifthenelse{%          % NFT coefficient 'b'[1 = mode index, 2 = subscript index]
+  \equal{#2}{}}{b_{#1}(\eig)}{b_{#1}(\eig[#2])}}
+\newcommand{\cnft}[1][]{\ifthenelse{                  % NFT continuous spectrum [1 = subscript index]
+  \equal{#1}{}}{Q_{c}(\eig)}{Q_{c,#1}(\eig)}}
+\newcommand{\dnft}[1][]{\ifthenelse{                  % NFT discrete spectrum [1 = subscript index]
+  \equal{#1}{}}{Q_{d}(\eig)}{Q_{d}(\eig[#1])}}
+\newcommand{\cnftsp}[1][]{Q_{c}(\eig}                 % NFT continuous spectrum with space for space var
+\newcommand{\dnftsp}[1][]{\ifthenelse{
+  \equal{#1}{}}{Q_{d}(\eig}{Q_{d}(\eig[#1]}}   % NFT discrete spectrum with space for space var
+\newcommand{\nftH}[1][]{e^{-4\iunit\eig[#1]^2\nssp}}         % NFT spectrum space evolution / Channel transfer function
+\newcommandx{\nftInvH}[2][1=, 2=]{e^{4\iunit\eig[#1]^2#2}}       % Inverse NFT spectrum space evolution (z = 1) / Inverse channel transfer function
+\newcommand{\nEig}{N}                                 % Number of discrete eigenvalues
+\newcommand{\bitsperblock}{d}
+% Estimated at the reciever
+\newcommand{\eigest}[1][]{\ifthenelse{                % Eigenvalue [1 = subscript index]
+  \equal{#1}{}}
+    {{\widetilde{\lambda}}}
+    {{\widetilde{\lambda}_#1}}
+  }
+\newcommandx{\nftbest}[2][1=, 2=]{\ifthenelse{        % NFT coefficient 'b'[1 = mode index, 2 = subscript index]
+  \equal{#2}{}}
+    {\widetilde{b_{#1}}(\eigest)}
+    {\widetilde{b_{#1}}(\eigest[#2])}
+  }
+\newcommand{\cnftest}[1][]{\ifthenelse{                  % NFT continuous spectrum [1 = subscript index]
+  \equal{#1}{}}
+    {\widehat{Q}_{c}(\eig)}
+    {\widehat{Q}_{c, #1}(\lambda)}
+  }
+% Conjugate versions
+\newcommand{\nftaconj}[1][]{\bar{a}(\eig[#1])}        % NFT coefficient 'a' conjugate [1 = subscript index]
+\newcommandx{\nftbconj}[2][1=, 2=]{\ifthenelse{       % NFT coefficient 'b' conjugate [1 = mode index, 2 = subscript index]
+  \equal{#2}{}}
+    {\bar{b}_{#1}(\eig)}
+    {\bar{b}_{#1}(\eig[#2])}
+  }
+% Jost solutions
+\newcommand{\jost}[1][]{\phi_{#1}(t,\eig)}            % Jost solution generic
+\newcommandx{\jostp}[2][1=, 2=]{\ifthenelse{                 % Jost solution p [1 = component index, 2 = eigenvalue index]
+  \equal{#2}{}}
+    {\phi^{P}_{#1}(t,\eig)}
+    {\phi^{P}_{#1}(t,\eig[#2])}
+  }
+\newcommandx{\jostn}[2][1=, 2=]{\ifthenelse{                 % Jost solution n [1 = component index, 2 = eigenvalue index]
+  \equal{#2}{}}
+    {\phi^{N}_{#1}(t,\eig)}
+    {\phi^{N}_{#1}(t,\eig[#2])}
+  }
+\newcommand{\jostpconj}[1][]{\bar{\phi}^{P}_{#1}      % Jost solution p conjugate
+            (t,\eig)}
+\newcommand{\jostnconj}[1][]{\bar{\phi}^{N}_{#1}      % Jost solution n conjugate
+            (t,\eig)}
+\newcommand{\jostpshrt}[1][]{\phi^{P}_{#1}}           % Jost solution p (short notation)
+\newcommand{\jostnshrt}[1][]{\phi^{N}_{#1}}           % Jost solution n (short notation)
+\newcommand{\jostpconjshrt}[1][]{\bar{\phi}^{P}_{#1}} % Jost solution p conjugate (short notation)
+\newcommand{\jostnconjshrt}[1][]{\bar{\phi}^{N}_{#1}} % Jost solution n conjugate (short notation)
+
+% Darboux
+\newcommand{\nfldsmod}[1][]{\hat{q}_{#1}             % Normalized field/signal  with time coordinate
+                (\nttm)}
+
+\newcommand{\auxsol}{\bar{v}}           % Darboux transform auxiliary solution
+\newcommand{\auxsolmat}{\Theta} % Darboux transform auxiliary solution matrix
+
+% NFT math relateed quantities
+\newcommand{\wron}[2]{W(#1, #2)} % Wronskian
+
+% NFT math relateed quantities - Single pol
+% \newcommand{\vv}{\begin{pmatrix} \psi_1\\ \psi_2\end{pmatrix}} % Obsolete
+% \newcommand{\vvt}{\renewcommand*{\arraystretch}{1.2}\begin{pmatrix} \frac{\partial\psi_1}{\partial\tau}\\ % Obsolete
+% \frac{\partial\psi_2}{\partial\tau}\end{pmatrix}}
+\newcommand{\matL}{\boldsymbol{L}}
+\newcommand{\matP}{\boldsymbol{P}}
+\newcommand{\matM}{\boldsymbol{M}}
+\newcommand{\matPfull}{\begin{pmatrix} -j\eig & q(t) \\ -q(t)^* & j\eig \end{pmatrix}}
+
+% NFT math relateed quantities - Dual pol
+\newcommand{\mzssol}[1][]{v_{#1}}                        % Vector solution ofthe ZSP [1 = component number] (Was \dv)
+% \newcommand{\dvv}{\begin{pmatrix} % Obsolete
+%         \psi_1\\ \psi_2\\ \psi_3\end{pmatrix}} % Obsolete
+% \newcommand{\dvvt}{\renewcommand*{\arraystretch}
+%         {1.2}\begin{pmatrix} \frac{\partial\psi_1}
+%         {\partial\tau}\\
+% \frac{\partial\psi_2}{\partial\tau}\end{pmatrix}}
+
+% Forward backward method
+\newcommand{\psisol}[1][]{\psi_{#1}}               % Solution of the ZSP after the change of variable [1 = component number]
+\newcommand{\fbw}[1][]{w_{#1}}                     % Solution of the ZSP after the change of variable [1 = component number]
+\newcommand{\fbu}[1][]{u_{#1}}                     % Solution of the ZSP after the change of variable [1 = component number]
+
+\newcommand{\tjostp}[1][]{\psi^{P}_{#1}(t,\eig)}   % Transformed Jost solution p
+\newcommand{\tjostn}[1][]{\psi^{N}_{#1}(t,\eig)}   % Transformed Jost solution n
+\newcommand{\tjostpshrt}[1][]{\psi^{P}_{#1}}       % Transformed Jost solution p (short notation)
+\newcommand{\tjostnshrt}[1][]{\psi^{N}_{#1}}       % Transformed Jost solution n (short notation)
+
+% From NFT tutorial paper (should be removed and not used)
+\newcommand{\wrong}[1]{{\color{red}#1}}
+\newcommand{\ms}[1]{\mathds{#1}}
+\newcommand{\Ex}{\ms{E}}
+\newcommand{\Ns}{n_{\tnr{s}}}
+\newcommand{\tnr}[1]{{\textnormal{#1}}}
+\newcommand{\ld}{\ldots}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\mcXkb}{\mathcal{X}_{k}^{b}}
+\newcommand{\mcXko}{\mathcal{X}_{k}^{1}}
+\newcommand{\mcXkz}{\mathcal{X}_{k}^{0}}
+\newcommand{\mcX}{\mathcal{X}}
+
+% Command to reference a figure inset
+\newcommand{\insetref}[1]{(\textbf{#1})}
+
+%%%%%%%%%%%%%%%%%%%%% COMMANDS RENEWED %%%%%%%%%%%%%%%%%%%%%%
+
+% Compact matix
+\newcommand{\compactmat}{\renewcommand                % Reduce the vertical space inside matrices
+        {\arraystretch}{1}}
+
+% Equation number with S1 style (for supplementary information)
+% \renewcommand{\theequation}{S.\arabic{equation}}
+
+% System of equations with a single equation number
+\newenvironment{nalign}{                              % Align environment with a single equation number for multiple equations
+    \begin{equation}
+    \begin{aligned}
+}{
+    \end{aligned}
+    \end{equation}
+    \ignorespacesafterend
+}
+
+
+% Make my name bold (needs to be annotated in the bibliography)
+\renewcommand*{\mkbibnamegiven}[1]{%
+\ifitemannotation{simonegaiarin}
+{\textbf{#1}}
+{#1}}
+
+\renewcommand*{\mkbibnamefamily}[1]{%
+\ifitemannotation{simonegaiarin}
+{\textbf{#1}}
+{#1}}
+
+\newcommand{\symb}[1]{\item[${#1}$]}
+\newcommand{\symbt}[1]{\item[{#1}]}

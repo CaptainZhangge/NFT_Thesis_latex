@@ -1,0 +1,35 @@
+%%%%% DON'T EDIT MANUALLY THE
+\chapter{Ph.D. Publications}
+%\fancyhead[RE]{\bf Ph.D. Publications}
+
+The following publications have resulted from this Ph.D. project.
+
+% !!NOTE!! Delete .aux files when changing the options of biblatex
+% Usually it is required if the sorting or numbers are wrong
+
+% sorting=ydnt  -  By years descending
+% labelprefix   -  Add prefix to citation number
+% keyword       -  Print only references matching that keyboard
+% heading=subbibliography  -  Print bibliography as section not as chapter
+% resetnumbers  -  Start counting from 1 in the sectioin.
+%                  Requires global flag defernumbers
+% title         -  Custom title for the section
+
+\begin{refcontext}[sorting=ydnt, labelprefix=J]
+    \nocite{ozolins2017100,pang2017experimental,da2016combined} % Not cited in the text
+    % \nocite{Rasmus2018} % Rasmus paper to be submitted
+    \nobibintoc % Prevent the section title to appear in the bibliography
+                % subbibliography should already not appear, seems a bug
+    \printbibliography[keyword=GaiarinJournals,heading=subbibliography,
+    title={Articles in peer-reviewed journals}]
+\end{refcontext}
+
+
+\begin{refcontext}[sorting=ydnt,labelprefix=C]
+    \nocite{Rasmus2017,pang2016evaluation,ozolins2016100,gaiarin2016high,popov2016ultra}
+    \nocite{GaiarinECOC17} % Can remove this later
+    \nobibintoc
+    \printbibliography[keyword=GaiarinConferences,heading=subbibliography,
+    resetnumbers=true,
+    title={Contributions to international peer-reviewed conferences}]
+\end{refcontext}

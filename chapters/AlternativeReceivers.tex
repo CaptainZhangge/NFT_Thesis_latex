@@ -1,0 +1,51 @@
+\chapter{Alternative receivers for eigenvalue communications systems}\label{ch:alternative_receivers}
+An optimal NFT receiver must consider how distortions to the time-domain signal are translated into the nonlinear Fourier domain, which is currently unclear. Various methods, such as special soliton design and decoding schemes attempt to deal with the impact of losses and noise in NFDM systems\cite{aref16,gui17}.
+Moreover, time-domain detection based on Euclidean distance has been proposed\cite{buelow16}. Such a decision metric entirely omits the NFT at the receiver and assumes that the noise is additive white Gaussian (AWG).
+
+In this work, we propose a new time-domain detection scheme based on neural networks (NN)\cite{bishop06} and compare performances with NFT and minimum distance (MD) receivers in long-haul standard single mode fiber (SSMF) link scenarios with 80\,km spans and erbium doped fiber amplifiers (EDFA). Moreover, a principal component analysis (PCA) based processing is proposed, which provides a filter bank of matched filters, maximizing the information extracted from the signal and drastically reducing the complexity of the NN receiver.
+
+\section{Methods}
+In this paper three detection schemes are analyzed and shown in Fig. \ref{fig:setup} (a-c).
+Scheme (a) uses the NFT followed by a decision in the nonlinear spectrum. Schemes (b) and (c) are applied in time domain directly on the received waveform and using the Euclidean MD and an NN, respectively.
+The idea is to instead of using the NFT at the receiver, we use methods from the machine learning field to make the optimal decision.
+The advantage of using an NN is that no assumption on the accumulated noise distribution is made, i.e. the receiver learns the noise distributions from the received data during the training process.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{img/NFTDualSetup_v3.pdf}
+\caption{Simulation setup of 80\,km SSMF spans and EDFA amplifiers. Two eigenvalue NFDM based transmitter. Nonlinear Fourier domain NFT (a), time-domain minimum distance (b) and proposed time-domain neural network receiver (c).}
+\label{fig:setup}
+\end{figure}
+%
+At the transmitter, single polarization soliton pulses are generated from NFDM symbols with two eigenvalues and their spectral amplitudes modulated with QPSK. This leads to 16 unique soliton pulses and thus four bits per soliton. The pulses are either considered back to back with AWG noise or propagated over an SSMF using the split-step Fourier (SSF) method.
+
+In the MD and NN scheme, the detection problem is treated as a traditional classification problem. This is only possible since all pulses of the NFDM waveform are not overlapping and separable in time. With this in mind, all possible received pulses span a 128\,dimensional complex space $u_{rx}\,\in\,\mathbb{C}^{128}$, where 128 is the oversampling rate. The 16 points in the decision space correspond to the 16 unique reference pulses $u^{(i)}_{ref}$, $i=1..16$, received under noiseless conditions. The classification problem is to find 16 decision regions, especially their boundaries, which will associate every received distorted and noisy pulse to its most probable region.
+
+In the MD receiver case, for every received pulse the Euclidean distance to all reference pulses is calculated and the reference pulse with minimum distance is chosen for decoding: $i_{opt}=\argmin_i(d(u_{rx},u^{(i)}_{ref}))$.
+
+The novel detection scheme (c) of this work is using an NN for the classification problem. The NN learns the mapping from the 128\,dimensional complex space of pulses to an index of one of the 16\,reference pulses. This mapping must be learned from training data. The 128\,dimensional complex input to the NN is separated in real and imaginary parts and the decisions are transformed to one-hot encoded vectors of length 16. Thus, the NN has 256\,input units and 16\,output units. Further, all NNs deployed within this work contain one hidden layer with 32 units and are trained with sigmoid activation functions, softmax output layer, cross-entropy loss function, stochastic gradient descent and the Adam optimization algorithm\cite{bishop06, goodfellow16}. The data for the training process in this work was generated in independent simulations than the data used for performance estimation.
+
+A drawback of the time-domain schemes is the complexity of the classification in 128 dimensions. This problem is addressed by applying the PCA on the 16 unique reference pulses. After the PCA, the 16 points are projected into a subspace of lower dimension but with preserved variance\cite{bishop06}. This property of the PCA ensures that the information loss of the projection is as low as possible. Here, the four most important Principal Components (PC) are chosen. Thus, each received pulse is projected into a four dimensional space spanned by the chosen PC, which enables the MD and the NN schemes to train and classify in a lower dimensional space after projection. At the same time, the four PCs themselves yield linearly independent matched filters. Thus, instead of projecting the sliced pulses, the complete received waveform can be filtered four independent times, which sampled at the optimal instant provide most of the transmitted information.
+
+\section{Analysis}
+Five detection schemes are applied on simulated data. The NFT scheme in the nonlinear spectral domain and the MD, MD-PCA, NN and NN-PCA schemes in time domain. The SSF method modeled single mode fiber with dispersion parameter $D$=17.5\,ps/(nm\,km), nonlinear coefficient $\gamma$=1.25\,1/(W\,km), fiber loss $\alpha$=0.195\,dB/km and increasing transmission distance from 560 km to 4000 km. The link is divided into 80\,km EDFA (noise figure 5 dB) spans.
+
+In Fig.\,\ref{fig:b2b}, back to back bit error rate (BER) performance and in Fig.\,\ref{fig:distance} the transmission BER performance is shown. The back to back BER of the MD scheme is best and the NN scheme performs around 0.5\,dB worse. The NFT scheme is severely penalized by the noise and at a BER of $10^{-3}$ the time-domain schemes outperform the NFT scheme by almost 13\,dB. This is in accordance with the theory that Euclidean distance is the optimum performance metric in maximum likelihood sense for AWG noise\cite{proakis95}.
+
+After transmission in the nonlinear region, NFT cannot recover any information. This is explained by the fact that in 80 km spans, the solitons are attenuated to a degree that nonlinearities and dispersion are not ideally mutually countered and the solitons eventually disperse. On the other hand, the NN scheme is trained on these distorted solitons and thus is more capable of extracting the information. An interesting observation in \figref{fig:distance} is that the MD is no longer optimum, this points in the direction that the noise is not AWG noise.
+
+The PCA schemes resemble the performance of their higher dimensional counterparts in the back to back simulations. Regarding the transmission BER, there can be around 100\,km loss of the NN-PCA with respect to the NN. This implies that the derived matched filters actually extract the most important features of the signal, but also that some information is lost during the projection.
+
+\begin{figure}[!tbp]
+  \centering
+    \includegraphics[width=.8\textwidth]{img/b2b3.eps}
+    \caption{Back to back performance of different receiver schemes.}
+    \label{fig:b2b}
+\end{figure}
+\begin{figure}[!tbp]
+    \includegraphics[width=.8\textwidth]{img/distance3.eps}
+    \caption{Transmission performance of different receiver schemes.}
+    \label{fig:distance}
+\end{figure}
+
+\section{Conclusion}
+Effects of losses and noise in NFDM systems cause distortions that the NFT receiver cannot handle. Likewise, the poor performance of the minimum distance receiver leads to the conclusion that the accumulated distortions throughout the link are not additive white Gaussian noise. For this reason we have proposed a neural network receiver which can handle such impairments. Further, the proposed principal component filter bank implies a low complexity version of the neural network receiver with a slight performance penalty.

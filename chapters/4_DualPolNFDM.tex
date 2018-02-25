@@ -1,0 +1,754 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% INTRODUCTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Dual polarization \acl{NFDM}}\label{ch:dual_pol_nfdm}
+
+\section{Introduction}
+
+A series of key challenges that need to be met in order to bring \ac{NFT}-based communication to exit the labs and operate in real-world infrastructures, has been described recently~\cite{Turitsyn2017}. One of those challenges consists  of endowing the eigenvalue communication approach with polarization division multiplexing, which allows information to be encoded on both orthogonal polarization components supported by \acp{SMF}.
+The description of the light propagation, accounting for its polarization dynamics, can, under specific conditions that apply to modern communications fiber link, be described by the Manakov equations \cite{Wai1991a}.
+In a milestone paper of nonlinear science, Manakov showed that those equations can be solved analytically by the \ac{IST} \cite{Manakov1974a}. Detailed investigations of the solutions of the Manakov equations, especially concerning soliton and multisoliton dynamics in the presence of noise and \ac{PMD} in optical communications, are present in the literature \cite{yang1999multisoliton,lakoba1997perturbation,xie2002influences,chen2000manakov,horikis2004nonlinear,derevyanko2006statistics}.
+
+The \ac{NFT} dual polarization problem has never been tackled at the level to demonstrate a working communication system,
+and only very preliminary theoretical works are present in the literature on this topic~\cite{Maruta,Goossens:17}.
+
+In this Chapter, which is based on \cite{gaiarin2016high,Gaiarin2018}, the mathematical framework underlying the dual polarization \ac{NFT} is presented together with a description of a \ac{DP-NFDM} fiber optics communication system. Then the results on the first experimental demonstration of such a system are presented, showing a transmission up to \SI{373.5}{\km} at the \ac{HD-FEC} \ac{BER} threshold of $3.8\times10^{-3}$. The information was encoded in the \ac{QPSK} modulated scattering coefficients associated with two eigenvalues belonging to the \ac{MS} discrete spectrum, for both orthogonal polarization components supported by a \ac{SMF}.
+
+The rest of this Chapter is structured as follows:
+Section~\ref{sec:math_framework} defines the \ac{NFT} for the dual polarization
+case, and it describes the mathematical tools needed to generate the waveforms
+associated with a desired nonlinear spectrum for both field polarizations.
+Section~\ref{sec:numerical_methods} presents a numerical method for computing
+the dual polarization direct \ac{NFT}. Section~\ref{sec:nfdm_system} discusses
+the details of a practical example of a \ac{DP-NFDM} system. Finally,
+Section~\ref{sec:experimental_results} presents a detailed account of the
+experimental transmission results, followed by a discussion of the results, and
+conclusions in Section~\ref{sec:nfdm_summary}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% .SEC. MATHEMATICAL framework  %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mathematical framework}\label{sec:math_framework}
+
+This section first introduces the Manakov channel model and then presents an extension for  the dual polarization case of the \ac{NFT} theory in Section~\ref{sec:NFT}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. CHANNEL MODEL %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Channel model}
+
+The evolution of the slowly varying complex-valued envelopes of the electric field propagating in a \ac{SMF} exhibiting random birefringence, and whose dispersion and nonlinear lengths are much larger than the birefringence correlation length, is described by the averaged Manakov equations~\cite{Wai1991a,menyuk2006interaction}
+%%%% MANAKOV SYSTEM %%%%
+\begin{equation}\label{eq:MS}
+  \left\{\begin{aligned}
+    \pdv{\fld[1](\ttm,\ssp)}{\ssp}&=- \iunit\dfrac{\dispersion}{2}\pdv[2]{\fld[1](\ttm,\ssp)}{\ttm}+\iunit\frac{8\nonlinfact}{9}\left(|\fld[1](\ttm,\ssp)|^2+|\fld[2](\ttm,\ssp)|^2\right)\fld[1](\ttm,\ssp)\\
+    \pdv{\fld[2](\ttm,\ssp)}{\ssp}&=- \iunit\dfrac{\dispersion}{2}\pdv[2]{\fld[2](\ttm,\ssp)}{\ttm}+\iunit\frac{8\nonlinfact}{9}\left(|\fld[1](\ttm,\ssp)|^2+|\fld[2](\ttm,\ssp)|^2\right)\fld[2](\ttm,\ssp)
+  \end{aligned}\right.
+\end{equation}
+where $\ttm$ and $\ssp$ represent the time and space coordinates, \mbox{$\fld[j](\ttm,\ssp)$, $j = 1,2$} are the amplitudes of the two electric field polarizations, $\dispersion$ is the \ac{GVD}, and $\nonlinfact$ is the nonlinear parameter.
+
+The normalized \ac{MS}~\cite{Manakov1974a,Ablowitz2004a,Docksey2000a} for the anomalous dispersion  regime ($\dispersion<0$) is
+%%%% MANAKOV SYSTEM NORMALIZED %%%%
+\begin{equation}\label{eq:NMS}
+  \left\{\begin{aligned}
+    \iunit\pdv{\nfldl[1]}{\nssp}&= \pdv[2]{\nfldl[1]}{t}+2\left(|\nfldl[1]|^2+|\nfldl[1]|^2\right)\nfldl[1]\\
+    \iunit\pdv{\nfldl[2]}{\nssp}&= \pdv[2]{\nfldl[2]}{t}+2\left(|\nfldl[1]|^2+|\nfldl[2]|^2\right)\nfldl[2]
+  \end{aligned}\right.
+\end{equation}
+with $\nssp$ and $\nttm$ the normalized space and time variables, respectively, and
+is derived from \eqref{eq:MS} through the change of variable \eqref{eq:change_of_variables_NLSE}, here reported for convenience
+%%%% CHANGE OF VARIABLES %%%%
+\begin{equation}\label{eq:normalization}
+   \nfld[j] = \dfrac{\fld[j]}{\sqrt{P}}, \hspace{0.7cm} \nttm = \dfrac{\ttm}{T_0}, \hspace{0.7cm} \nssp = -\dfrac{\ssp}{\nftcvL}
+\end{equation}
+with $P = |\dispersion|/(\frac{8}{9}\nonlinfact T_0^2)$, $\nftcvL = 2 T_0^2 /|\dispersion|$ and $T_0$ is the free normalization parameter.
+
+As for the case of the \ac{NLSE}, the presence of the fiber loss makes the \ac{MS} not integrable. The \ac{LPA} approximation presented in Section~\ref{sec:NFT_loss_and_noise} can be applied to the \ac{MS} to obtain an equivalent lossless propagation equation over which it is possible to define the dual polarization \ac{NFT}. The same conditions and limitations of the model in Section~\ref{sec:NFT_loss_and_noise} apply for this case.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% .SUBSEC. MZS SPECTRAL PROBLEM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Inverse scattering auxiliary problem}
+\label{sec:dp_auxiliary_problem}
+
+In order to
+compute the \ac{NFT} of a signal $\nfld[1,2](t)$ it is first necessary to associate an auxiliary problem to  the
+\ac{MS} \eqref{eq:NMS} that for the Manakov case we can call the \ac{MZSP}. The \ac{MZSP} is defined by the following system of linear ordinary differential equations
+%%%% ZAKHAROV SHABAT PROBLEM %%%%
+\begin{subequations}\label{eq:MZSP}
+  \begin{align}
+     \pdv{\vecv}{\nttm}&=\left(\eig \mathbf{A}+\mathbf{B}\right)\vecv
+     \label{eq:MZSP_time}\\
+     \pdv{\vecv}{\nssp}&=\left(-2\eig^2\mathbf{A}-2\eig \mathbf{B}+\mathbf{C}\right)\vecv
+     \label{eq:MZSP_space}
+  \end{align}
+\end{subequations}
+being
+%%%% A,B,C MATRICES %%%%
+
+\begin{equation*}
+\compactmat
+\mathbf{A} = \begin{pmatrix}
+      -\iunit & 0 & 0 \\
+      0 & \iunit  & 0 \\
+      0 & 0 & \iunit
+    \end{pmatrix} \ \
+\mathbf{B} = \begin{pmatrix}
+      0 & \nfld[1] & \nfld[2]\\
+      -\nfld[1]^* & 0 & 0 \\
+      -\nfld[2]^* & 0 & 0
+    \end{pmatrix} \ \
+\end{equation*}
+\begin{equation*}
+\compactmat
+    \mathbf{C}=\begin{pmatrix}
+      \iunit(|\nfld[1]|^2+|\nfld[2]|^2)& \iunit\pdv{\nfld[1]}{\nssp}& \iunit\pdv{ \nfld[2]}{\nssp}\\
+      \iunit\pdv{\nfld[1]^*}{\nssp} & -\nfld[1]^*\nfld[1] & -\iunit\nfld[1]^*\nfld[2] \\
+      \iunit\pdv{\nfld[2]^*}{\nssp}  & -\iunit\nfld[2]^*\nfld[1] & -\iunit\nfld[2]^*\nfld[2]
+    \end{pmatrix} \ \
+\end{equation*}
+\iffalse % Without the time evolution equations
+\begin{equation}\label{eq:MZSP_time}
+    \pdv{\vecv}{t}=\left(\eig \mathbf{A}+\mathbf{B}\right)\vecv
+\end{equation}
+being
+%%%% A,B,C MATRICES %%%%
+\begin{equation*}
+\compactmat
+\mathbf{A} = \begin{pmatrix}
+      -i & 0 & 0 \\
+      0 & i  & 0 \\
+      0 & 0 & i
+    \end{pmatrix} \ \
+\mathbf{B} = \begin{pmatrix}
+      0 & \nfld[1] & \nfld[2]\\
+      -\nfld[1]^* & 0 & 0 \\
+      -\nfld[2]^* & 0 & 0
+    \end{pmatrix} \ \
+\end{equation*}
+\fi
+and $\vecv$ is a solution and $\eig$ is an eigenvalue.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. DIRECT NFT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Direct NFT}\label{ssec:direct_NFT_Manakov}
+
+Assuming the vanishing boundary conditions for the signal, \mbox{$|\nflds[1,2]|\xrightarrow{} 0$} for $t\xrightarrow{} |\infty|$, a possible set of canonical Jost solutions to \eqref{eq:MZSP_time} are~\cite{Ablowitz2004a}:
+
+%%%% JOST SOLUTIONS N %%%%
+\begin{subequations}\label{eq:dp_jost}
+  \begin{align}
+  \compactmat
+  \jostn \rightarrow \begin{pmatrix}
+                1 \\
+                0 \\
+                0
+              \end{pmatrix}e^{-\iunit \eig \nttm}; \ \
+  \jostnconj\rightarrow \begin{pmatrix}
+                  0 & 0 \\
+                  1 & 0 \\
+                  0 & 1
+                \end{pmatrix}e^{\iunit \eig \nttm} \ \
+  \nttm \rightarrow -\infty
+  \end{align}
+
+  %%%% JOST SOLUTIONS N %%%%
+  \begin{align}
+  \compactmat
+  \jostp\rightarrow  \begin{pmatrix}
+                0 & 0 \\
+                1 & 0 \\
+                0 & 1
+              \end{pmatrix}e^{\iunit \eig \nttm}; \ \
+  \jostpconj\rightarrow \begin{pmatrix}
+                  1 \\
+                  0 \\
+                  0
+                \end{pmatrix}e^{-\iunit \eig \nttm} \ \
+  \nttm \rightarrow +\infty~.
+  \end{align}
+\end{subequations}
+$\{\jostp,~\jostpconj\}$
+and $\{\jostn,~\jostnconj\}$ are two bases for the eigenspace associate to $\eig$. $\jostn$ and $\jostnconj$ can be expressed as a linear combination of the basis vectors $\{\jostp,~\jostpconj\}$ as
+
+%%%% JOST SOLUTIONS PROJECTION %%%%
+\begin{subequations}\label{eq:dp_jost_projection}
+  \begin{align}\label{eq:dp_jost_projection_1}
+  \jostn&=\jostp \nftb+ \jostpconj \nfta\\
+  \jostnconj&=\jostp \nftaconj+ \jostpconj \nftbconj
+  \end{align}
+\end{subequations}
+with scattering coefficients $\nfta$, $\nftb$, $\nftaconj$ and $\nftbconj$, where $\nfta$ is a scalar,
+$\nftaconj$ is a $2\times2$ matrix, $\nftb$ is a two entries column vector and
+$\nftbconj$ is a two entries row vector.
+
+
+%%%% CONTINUOUS AND DISCRETE SPECTRA %%%%
+Analogously to the case of the \ac{NLSE}, we can define the \ac{NFT} continuous and discrete spectral amplitudes for the \ac{MS} as:
+\begin{subequations}
+\begin{align}
+\cnft&=\nftb\nfta^{-1} & \eig&\in \RR\\
+\dnft[i]&=\nftb[][i]\nftaderiv[i]^{-1}  & \eig[i] &\in \CC^+, i = 1,\dots, N
+\end{align}
+\end{subequations}
+and $\nftaderiv[i]=\dv{\nfta}{\eig}|_{\eig=\eig[i]}$ $\forall$ $\eig[i] \in \CC^+, i = 1,\dots, N$, where $N$ is the number of discrete eigenvalues, such
+that $\nfta[i]=0$.
+
+The scattering coefficients are time independent and their spatial evolution is given by~\cite{Ablowitz2004a}:
+\begin{subequations}
+\begin{align}\label{eq:dp_ch_transfer_function}
+a(\eig,\nssp)&=a(\eig, 0) & \bar{a}(\eig,\nssp)&=\bar{a}(\eig,0) \\
+b(\eig,\nssp)&=b(\eig,0)e^{-4\iunit\eig^2\nssp} & \bar{b}(\eig,\nssp)&=\bar{b}(\eig,0)e^{4\iunit\eig^2\nssp}.\label{eq:bscatcoeff}
+\end{align}
+\end{subequations}
+In order to not overburden the notation, we drop the explicit space dependence as we did in the beginning of this section.
+
+The scattering coefficients can be computed  using the Jost solutions and the projection equation \eqref{eq:dp_jost_projection_1} following the same procedure explained in Section~\ref{sec:direct_NFT_NLSE} for the \ac{NLSE} case. The \scatcoef{} as a function of the components of the Jost solutions are
+
+%%%% NFT COEFFICIENTS A,B DEFINITION %%%%
+\begin{subequations}
+\begin{align}
+\nfta&=\lim_{\nttm \to +\infty}\left[\jostn[1]\jostpconj[1]^{-1}\right]\\
+\nftb[1]&=\lim_{\nttm \to +\infty} \left[\jostn[2] \jostp[2,1]^{-1}\right]\\
+\nftb[2]&=\lim_{\nttm \to +\infty} \left[\jostn[3] \jostp[3,2]^{-1}\right]
+        % Alternative notation with submatrix
+%         \jostn[] (2:3, 1:3)^{-1}\right] \\
+\end{align}
+\end{subequations}
+and using \eqref{eq:dp_jost} and \eqref{eq:dp_jost_projection_1} finally result in
+\begin{subequations}
+\begin{align}
+\nfta&=\lim_{\nttm \to +\infty}\left[\jostn[1]e^{\iunit \eig \nttm}\right]\\
+\nftb&=\begin{pmatrix}
+           \nftb[1]\\
+           \nftb[2]
+       \end{pmatrix} =
+      \lim_{\nttm \to +\infty}\left[\begin{pmatrix}
+       \jostn[2]  \\
+       \jostn[3]
+     \end{pmatrix}e^{-\iunit \eig \nttm}\right].
+\end{align}
+\end{subequations}
+It should be noted that, compared to the \ac{NLSE} case, there is an additional scattering coefficient $\nftb[2]$ that can be used to encode information, potentially doubling the system transmission rate.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. INFT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Inverse NFT}\label{sec:INFT_Manakov}
+
+This section describes the \ac{INFT} computed using the \ac{DT} for the \ac{MS} derived by Wright \cite{Wright2003}, which extends the procedure presented in Section~\ref{sec:INFT_NLSE} for the \ac{NLSE} case.
+
+% %%%% .FIG. DARBOUX %%%%
+% \begin{figure}[!t]
+%   \centering
+%   \includegraphics[width=\textwidth]{./img/darboux_scheme_v2-crop.pdf}
+%   \caption{Schematic of the \ac{DT}. The S-node is the signal update operation corresponding to \eqref{eq:dp_darboux_signal_update} and the E-node is the eigenvector
+%   update operation corresponding to \eqref{eq:dp_darboux_eigenvectors_update}. At the step $i=1,2,3$ the auxiliary solution $\auxsol$\textsuperscript{(i)} for $\eig = \eig[i]$ (red arrow) modifies the signal $q_j$\textsuperscript{(i-1)} and all the other auxiliary solutions (blue arrows). The seed null signal $\nflds[j]$\textsuperscript{(0)},~$j=1,2$ entering the first S-node is transformed after each step in such a way that its discrete spectrum has a new eigenvalue added as shown in the four insets in upper part of the figure}
+%   \label{fig:dp_darboux_scheme}
+% \end{figure}
+
+Let $\vecv$ be a column vector solution of the \ac{MZSP}  spectral problem \eqref{eq:MZSP_time} associated with the \ac{MS}  for the
+signal $\nflds[1,2]$ and the eigenvalue $\eig$, then according to~\cite{Wright2003} a new solution of \eqref{eq:MZSP_time}, $\hat{\vecv}$, is given by the following equation:
+ \begin{align}\label{eq:dp_darboux_eigenvectors_update}
+ \hat{\vecv}=\left(\eig \mathcal{\matr{I}}_3-\matr{G}_0\right)\vecv
+ \end{align}
+where $\mathcal{\matr{I}}_3$ is the $3\times3$ identity matrix, $\matr{G}_0=\auxsolmat \matr{M}_0\auxsolmat^{-1}$ with
+\begin{align}\label{eq:dp_auxsol_matrix}
+ \auxsolmat= \begin{pmatrix}
+       \auxsol_1 & \auxsol_2^* & \auxsol_3^* \\
+       \auxsol_2 & -\auxsol_1^*  & 0 \\
+       \auxsol_3 & 0 & -\auxsol_1^*
+     \end{pmatrix}
+\end{align}
+where the matrix $\matr{M}_0=\diagmatr(\eig[0],~\eig[0]^*,~\eig[0]^*)$, and $ \auxsol=(\auxsol_1,~\auxsol_2,~\auxsol_3)^T$ is a solution of \eqref{eq:MZSP_time} for the seed signal $\nflds[1,2]$ and the spectral parameter $\eig[0]$. The \ac{DT} gives the new signal waveforms in time domain for both polarizations $\nfldsmod[j],~j=1,2$ as a function of the old signal components $\nflds[j]$, of the auxiliary solution $\auxsol$, and of the new eigenvalue $\eig[0]$ we want to add to the nonlinear spectrum:
+\begin{align}\label{eq:dp_darboux_signal_update}
+ \nfldsmod[j]=\nflds[j]+2i(\eig[0]^*-\eig[0])\frac{u_j^*}{1+\sum_{s=1}^2|u_s|^2} \ \ (j=1,2)
+ \end{align}
+where $u_j=\auxsol_{j+1}/\auxsol_1$. When one of the components of $\nflds[1,2]$
+is null, \eqref{eq:dp_darboux_signal_update} reduces to the single polarization
+\ac{DT} in \eqref{eq:darboux_signal_update}.
+
+
+
+The iterative procedure to generate the dual polarization time domain  signal associated with an arbitrary discrete nonlinear spectrum, starting from the ``vacuum'' solution $\nflds[j]=0,~j=1,2$, is the same as the one presented in Section~\ref{sec:INFT_NLSE}, whose pseudo-code is given in Algorithm~\ref{alg:darboux_transform}. The procedure can be adapted to the dual polarization case by replacing the signal update and the auxiliary solution update equations with those in \eqref{eq:dp_darboux_signal_update} and \eqref{eq:dp_darboux_eigenvectors_update}, respectively. The initialization constants $\{A^{(k)}, B^{(k)}, C^{(k)}\}$ of the auxiliary solution $\auxsol$\textsuperscript{(k)} $=(A$\textsuperscript{(k)}$e^{-i\eig[k] t},~B$\textsuperscript{(k)}$e^{i\eig[k] t},~C$\textsuperscript{(k)}$e^{i\eig[k] t})^T$ need to be set to $\left\{1,-\nftb[1][k],-\nftb[2][k]\right\}$, where $\nftb[1][k]$ and $\nftb[2][k]$ are the \scatcoef{} that we want to associate to the eigenvalue $\eig[k]$ for the two polarization components.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% .SEC. NUMERICAL METHODS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical methods}\label{sec:numerical_methods}
+This section reports the derivation of an algorithm based on the so-called trapezoidal discretization method. It allows computing the scattering coefficients from time domain signals in the \ac{MS} with small numerical errors.
+
+In Section~\ref{ssec:direct_NFT_Manakov} it was explained that, in order to compute the \scatcoef{} $\nfta$ and $\nftb[1,2]$,  the Jost
+solution $\jostn$ needs to be propagated from $\nttm=-\infty$ to $\nttm=+\infty$ by integrating \eqref{eq:MZSP_time}. Among the many integration methods available, from the simple
+Newton
+integration to the more complex Runge-Kutta method, it has been shown in \cite{Aref2016c} that the trapezoidal integration is one of the algorithms that provides the best
+results in term of numerical precision in the \ac{NFT} context for the \ac{NLSE}
+case. Moreover, in the same work, an improvement  to the
+trapezoidal integration method was proposed. The method is called forward-backward, and it allows to
+increase the precision of the computation of the discrete \scatcoef{} for the complex
+discrete eigenvalues. In  Section~\ref{ssec:trapezoidal_method}, the
+proposed algorithm to the dual polarization \ac{MZSP} is extended.
+In Section~\ref{ssec:forward-backward_method} the concept of trapezoidal
+integration is reviewed, and following the same procedure used in
+\cite{Aref2016c},
+the algorithm required to compute the direct \ac{NFT} for the dual polarization case is derived.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. TRAPEZOIDAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The trapezoidal discretization method}\label{ssec:trapezoidal_method}
+
+The \ac{IVP}
+%%%% GENERIC IVP %%%%
+\begin{equation}\label{eq:time_variant_ode}
+    \dv{\psisol(\nttm)}{\nttm} = \matr{A}(\nttm) \psisol(\nttm), \quad \psisol(T_1) = \psisol[0]
+\end{equation}
+where $\matr{A}(\nttm)$ is a $n \times n$ matrix, admits the closed solution
+%%%% SOLUTION to GENERIC IVP %%%%
+\begin{equation}\label{eq:trapez_solution}
+    \psisol(t) = \exp\left (\int_{T_1}^t \matr{A}(\tau) d\tau\right )\psisol[0]
+\end{equation}
+if the matrix commutes with itself $\matr{A}(t_i)\matr{A}(t_j) = \matr{A}(t_j)\matr{A}(t_i)$ for any given $t_i, t_j$ \cite{Aref2016c}.
+The integral in \eqref{eq:trapez_solution} can be computed using the trapezoidal integration method. In this way, starting from the initial solution
+$\psisol[0]$ at $t_0 = T_1$, it is possible to numerically compute the solution  at an instant $t_N = T_2$ by discretizing the time axis in $N$
+sections of
+length $h = (T_2 - T_1) /N$ and computing the integral as
+%%%% TRAPEZOIDAL INTEGATION %%%%
+\begin{align}\label{eq:trapez_integration}\nonumber
+    \psisol(T_2) &= \exp\left\{ h\sum_{n=0}^{N}\dfrac{1}{2}\left[ \matr{A}(t_n) + \matr{A}(t_{n+1}) \right] \right\}\psisol[0] + R_e \\ \nonumber
+               &= \left[\prod_{n=0}^{N} e^{\frac{h}{2}\matr{A}(t_n)}e^{\frac{h}{2}\matr{A}(t_n+1)}\right] \psisol[0] + R_e\\
+               &= e^{\frac{h}{2}\matr{A}(t_0)}
+                  \left[\prod_{n=1}^{N-1}e^{h\matr{A}(t_n)}\right]
+                  e^{\frac{h}{2}\matr{A}(t_N)} \psisol[0] + R_e
+\end{align}
+being $R_e$ the truncation error.
+
+%%%% PIECEWISE CONSTANT A%%%%
+If $\matr{\tilde{A}}(t)$ is a piecewise constant matrix defined as
+\begin{equation}\label{eq:piecewiseA}
+    \matr{\tilde{A}}(t) =
+      \left\{
+        \begin{aligned}
+            &\matr{A}(t_1)   & T_1 &\leq t < T_1 + h/2\\
+            &\matr{A}(t_n) & T_1+nh-h/2 &\leq t < T_1+nh+h/2\\
+            &\matr{A}(t_2)   & T_2-h/2 &\leq t < T_2
+        \end{aligned}
+      \right.
+\end{equation}
+than the solution $\psisol(T_2)$ for $\matr{A} = \matr{\tilde{A}}(t)$, computed using the trapezoidal integration rule, is the exact solution
+of \eqref{eq:trapez_solution} ($R_e=0$).
+If $\matr{A}(t)$ does not satisfy the commutation property, then we can approximate it with $\matr{\tilde{A}}$ and compute the approximate solution
+with the trapezoidal rule.
+
+As explained in Section~\ref{ssec:direct_NFT_Manakov}, in order to compute the direct \ac{NFT}, it is necessary to solve the \ac{IVP} for the
+time evolution equation of the \ac{MZSP}
+%%%% ZAKHAROV SHABAT PROBLEM %%%%
+\begin{align}\nonumber
+\pdv{\mzssol(\nttm)}{\nttm}&= \matr{P}(\nttm) \mzssol (\nttm) \\
+      &=\begin{pmatrix}
+       -i \eig& \nfld[1](\nttm) & \nfld[2](\nttm) \\
+       -\nfld[1]^*(\nttm) & i\eig  & 0 \\
+       -\nfld[2]^*(\nttm) & 0 & i\eig
+     \end{pmatrix}
+     \mzssol (\nttm)
+\end{align}
+with initial condition $v(-\infty) = \jostn|_{\nttm=-\infty}$. Given the assumption that the signal must have a finite and
+symmetric support, so that $|\nflds[j]| = 0$,  $j=1,2$ for $\nttm \notin [-T_0,T_0]$, we want to find the value of $\mzssol(\nttm)$ at $\nttm=T_0$ in order to
+compute the \scatcoef{} $\nfta$ and $\nftb[1,2]$.
+
+To do this, it is first convenient to perform a change of variable and define the new vector $\psisol$ as follows
+%%%% CHANGE OF VARIABLES %%%%
+\begin{align}\label{rel}
+\psisol=\begin{pmatrix}
+      \psisol[1]\\
+      \psisol[2] \\
+     \psisol[3]
+     \end{pmatrix}=\begin{pmatrix}
+      \mzssol[1] e^{i\eig t}\\
+      \mzssol[2] e^{-i\eig t}\\
+      \mzssol[3] e^{-i\eig t}
+     \end{pmatrix}
+\end{align}
+The transformed \ac{IVP} becomes
+%%%% TRANSFORMED ZSP %%%%
+\begin{align}\label{eq:t_evolution_transformed}\nonumber
+\dfrac{\partial \psisol(t)}{\partial t}&= \matr{F}(t) \psisol(t)\\
+&=\begin{pmatrix}
+       0& \nfld[1](t)e^{2i\eig  t} & \nfld[2](t)e^{2i\eig  t} \\
+       -\nfld[1](t)^*e^{-2i\eig  t} &0 & 0 \\
+       -\nfld[2](t)^*e^{-2i\eig  t} & 0 & 0
+     \end{pmatrix}\psisol(t)
+\end{align}
+ with initial condition $\psisol[0]$, while the Jost solution becomes  $\tjostnshrt(-T_0) = (1,0,0)^T$.
+The \scatcoef{} can be computed from the transformed vector as
+\begin{subequations}
+\begin{align}
+    \nfta = \lim_{t\to\infty} \tjostnshrt[1](t)\\
+    \nftb[1] = \lim_{t\to\infty} \tjostnshrt[2](t)\\
+    \nftb[2] = \lim_{t\to\infty} \tjostnshrt[3](t).
+\end{align}
+\end{subequations}
+Given that $\matr{F}(t)$ does not commute with itself for two arbitrary time instants, it is not possible to express the solution of
+\eqref{eq:t_evolution_transformed} as a matrix exponential in the form of \eqref{eq:trapez_solution}.
+Nonetheless, as explained before,
+we can consider the discretized version of $\matr{F}(t)$, defined as in \eqref{eq:piecewiseA} with $T_1 = -T_0$ and $T_2 = T_0$
+%%%% DISCRETIZED F %%%%
+\begin{align}\matr{\tilde{F}}(t_n,\eig)=
+     \begin{pmatrix}
+      0& \nfld[1]e^{2i\eig  t_n}  & \nfld[2]e^{2i\eig  t_n} \\
+       -\nfld[1]^*e^{-2i\eig  t_n} & 0 & 0 \\
+       -\nfld[2]^*e^{-2i\eig  t_n}  & 0 & 0
+     \end{pmatrix}.
+\end{align}
+Performing the eigenvalue decomposition and computing the exponential of this matrix we obtain
+
+%%%% EXP OF F = Gn %%%%
+\begin{align}
+    \matr{G}_n&=e^{\matr{F}(t_n,\eig)h}\\
+    &= \begin{pmatrix}
+      cos(ph)& \frac{\nfld[1]e^{2i\eig  t_n}sin(ph)}{p} & \frac{\nfld[2]e^{2i\eig  t_n}sin(ph)}{p} \\
+        -\frac{\nfld[1]^*e^{-2i\eig  t_n}sin(ph)}{p}  & \frac{|\nfld[2]|^2+|\nfld[1]|^2cos(ph)}{p^2} &\frac{\nfld[2]\nfld[1]^*(cos(ph)-1)}{p^2} \\
+      -\frac{\nfld[2]^*e^{-2i\eig  t_n}sin(ph)}{p}  & \frac{\nfld[1]\nfld[2]^*(cos(ph)-1)}{p^2} & \frac{|\nfld[1]|^2+|\nfld[2]|^2cos(ph)}{p^2}
+     \end{pmatrix}\nonumber
+\end{align}
+with $p=\sqrt{|\nfld[1]|^2+|\nfld[2]|^2}$. It should be noted that $\matr{G}_n$ reduces to the \ac{NLSE} case \cite{Aref2016c} if either $\nfld[1]$ or $\nfld[2]$ are identically zero.
+Now, we can calculate  the $a(\eig)$ and $b_{1,2}(\eig)$ scattering coefficients starting from $\tjostnshrt(-T_0)$ and using the rule in
+\eqref{eq:trapez_integration} as follows
+
+\begin{align}
+\begin{pmatrix}
+       a_N(\eig)  \\
+       b_{1N} (\eig)\\
+       b_{2N}(\eig)
+     \end{pmatrix}=\matr{G}_N^{\frac{1}{2}}\matr{G}_{N-1}...\matr{G}_2\matr{G}_1\matr{G}_0^{\frac{1}{2}}\begin{pmatrix}
+       1  \\
+       0\\
+       0
+     \end{pmatrix}.
+\end{align}
+
+The presented algorithm can be used to compute both the continuous and the discrete nonlinear spectrum of the dual polarization signal $\nflds[1,2]$ with increased precision compared to other numerical methods as the forward Euler or the Crank-Nicolson \cite{Aref2016c}. If the nonlinear spectrum is purely discrete, the forward-backward trapezoidal method presented in the  next section can be used to further increase the numerical precision in the computation of $\nftb[1,2][i]$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. FORWARD-BACKWARD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Forward-backward method}\label{ssec:forward-backward_method}
+As stated in \cite{Aref2016c}, the forward-backward method can increase the numerical precision of the trapezoidal method when computing the $\nftb[1,2][i]$ for the case of complex discrete eigenvalues $\eig[i] \in \CC^+$.
+Indeed, the coefficients $\nftb[1,2][i]$ are related to the second and third component of $\psisol(\nttm)$ which at every
+integration step changes proportionally to $\nflds e^{2\iunit\eig[i]\nttm}$, as it can be seen from \eqref{eq:t_evolution_transformed}. Being the imaginary part of
+the eigenvalue strictly positive, when $T_0\gg1$, small errors in the
+estimation of $\eig[i]$ can lead to big integration errors due to the real part of the exponential term.
+
+If $\eig[i]$ is a discrete eigenvalue, by definition $\nfta[i] = 0$, so that the projection in \eqref{eq:dp_jost_projection_1} reduces to
+\begin{equation}\label{eq:fb_system}
+  \jostn[][i]=\jostp[][i] \nftb[][i]
+\end{equation}
+Since $\nftb[1,2][i]$ are time-invariant, they can be computed at any instant of time by solving the equation above. It is convenient to compute them at a time
+instant where the numerical error is small, for instance around $t_m = 0$.
+
+To do this we can propagate  the Jost solution $\jostn[][i]$ forward from $-T_0$ to $t_m$, and the Jost solution $\jostp[][i]$ backward from $T_0$ to $t_m$ in
+the following way
+\begin{subequations}
+\begin{align}
+    w(t_m) &= \matr{L}_N
+               \begin{pmatrix}
+                   1\\
+                   0\\
+                   0
+               \end{pmatrix}\\
+    u(t_m) &= \matr{R}_N^{-1}
+                \begin{pmatrix}
+                   0 & 0\\
+                   1 & 0\\
+                   0 & 1
+               \end{pmatrix}
+\end{align}
+\end{subequations}
+being $\matr{R}_N=\matr{G}_N^{\frac{1}{2}}\matr{G}_{N-1}...\matr{G}_{m+1}$ and $\matr{L}_N=\matr{G}_m...\matr{G}_2\matr{G}_1\matr{G}_0^{\frac{1}{2}}$ with $m=\floor{cN}$ and $0<c<1$.
+From \eqref{eq:fb_system} we obtain simply that
+\begin{align}
+\begin{pmatrix}
+       \fbw[1](t_m) \\
+       \fbw[2](t_m) \\
+       \fbw[3](t_m)
+     \end{pmatrix}=
+     \begin{pmatrix}
+       \fbu[11](t_m) & \fbu[12](t_m)  \\
+       \fbu[21](t_m) & \fbu[22](t_m)  \\
+       \fbu[31](t_m) & \fbu[32](t_m)
+     \end{pmatrix}
+     \begin{pmatrix}
+       b_1  \\
+       b_2
+     \end{pmatrix}
+\end{align}
+which is a consistent overdetermined system of equations that can be easily solved.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% .SEC. DP-NFDM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Dual polarization nonlinear frequency division multiplexing system}\label{sec:nfdm_system}
+The general structure of a \ac{DP-NFDM} system using the discrete spectrum is very similar to the single polarization one described in Chapter~\ref{ch:discrete_NFDM_system}.
+This section presents a \ac{DP-NFDM} system by describing the particular setup used in the experiment from which the results in \cite{GaiarinECOC17,Gaiarin2018} were obtained. In this system the scattering coefficients associated to two discrete eigenvalues are modulated. Both the \ac{DSP} and the experimental setup of this system is presented, and also the selection of the constellations of the $\nftb[1,2][i]$ scattering coefficients is discussed.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. CONSTELLATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Constellations selection}\label{sec:constellation_selection}
+
+The constellations of the \scatcoef{} $\nftb[][i]$  were chosen to reduce the \ac{PAPR} of the time domain signal $\fld(\ttm, \ssp)$. The \ac{PAPR} is defined as
+\begin{equation}
+\papr = 10 \log \left( \dfrac{ \max{(|\fld[1]|^2 + |\fld[2]|^2})}{P} \right),
+\end{equation}
+where $P = \int_0^{T}{ (|\fld[1]|^2 + |\fld[2]|^2}) d\ttm / T$ is the average power of the field,  $T$ is its time duration, and the index $i=1,2$ indicates the two field polarizations.
+The reason for this is that a signal with high \ac{PAPR} has lower signal-to-quantization-noise ratio due to the limited resolution of the \ac{DAC} \cite{benvenuto2011principles}. The signal is also more susceptible to distortion by the devices with a nonlinear characteristic such as \acp{MZM} and electrical amplifiers \cite{le2014peak,armstrong2009ofdm}.
+
+The time domain signal shape, bandwidth, duration and power depend on the particular choice of the eigenvalues and the scattering coefficients $\{\eig[1], \eig[2], \nftb[1,2][1],  \nftb[1,2][2]\}$. These parameters should be jointly optimized in order to minimize the \ac{PAPR} while satisfying system specific design constraints. In this experiment the constraint was to keep the duration of the signal smaller than the processing time-window, of duration of one symbol period \Ts{} = \SI{1}{\ns}, to avoid cropping the signal. However, this optimization would have been computationally demanding given the large dimensionality of the parameters space $\CC^6$.
+
+%%%% .FIG. CONSTELLATIONS %%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=.6\columnwidth]{./img/const_optimization-crop.pdf}
+
+  \caption{Representation of
+  the constellations of the scattering coefficients $\nftb[1,2][i],~i=1,2$ associated with the eigenvalue $\eig[1]=i 0.3$ (\textbf{c,d}) and $\eig[2] = i 0.6$ (\textbf{a,b}) and with the first (\textbf{a,c}) and second (\textbf{b,d}) polarization of the signal. The optimization angles $\theta_e$ and $\theta_p$, and the radii $r_1$ and $r_2$ are also shown}
+  \label{fig:const_optimization-opt}
+\end{figure}
+
+For this reason some accuracy was sacrificed in order to simplify the optimization procedure that nonetheless allowed reducing the \ac{PAPR} of the signal to a level that enabled to transmit over several hundreds of \si{\km}.
+
+Starting from a reference \ac{QPSK} constellation
+$C_r = \exp \left( i \left( k \frac{\pi}{2} + \frac{\pi}{4}\right ) \right )$ with $k=0,1,2,3 $,
+the set of constellations associated to the scattering
+ coefficients $\{\nftb[1][i],\nftb[2][i]\},i=1,2$ corresponding to the pair of eigenvalues $\{\eig[1]=\iunit0.3, \eig[2]=\iunit0.6\}$ was constructed as follows
+ \begin{equation}
+ \begin{pmatrix}
+ C_{1,1} & C_{1,2} \\
+ C_{2,1} & C_{2,2}
+ \end{pmatrix} =
+ \begin{pmatrix}
+ C_r r_1 \exp( i \theta_e ) & C_r r_1 \exp( i \theta_e ) \exp( i \theta_p ) \\
+ C_r r_2  & C_r r_2  \exp( i \theta_p )
+ \end{pmatrix}
+\end{equation}
+where $C_{i,j}$ is the constellation associated to the eigenvalue $i$ and the polarization $j$, $r_i$ is the radius of the constellations associated to the eigenvalue $\eig[i]$, $\theta_e$ is the relative rotation angle between the constellations associated to the two different eigenvalues, and $\theta_p$ is the relative rotation angle between the constellations associated to the two different polarizations. The four constellation diagrams are represented in \figurename~\ref{fig:const_optimization-opt}.
+
+%%%% .FIG. PAPR vs NONLINEAR SPECTRUM %%%%
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=.49\textwidth]{./img/constopt_papr_vs_theta.png}\hspace{3cm} % Hack to put the second figure in a new row
+  \includegraphics[width=.48\textwidth]{./img/constopt_papr_vs_radius.png}
+  \includegraphics[width=.49\textwidth]{./img/constopt_duration_vs_radius.png}
+
+  \caption{(\textbf{a}) \acs{PAPR} (\si{dB}) of the signal as a function of  the relative rotation angle $\theta_e$ between the constellations associated to the two different eigenvalues  and  the relative rotation angle $\theta_p$ between the constellations associated to the two different polarizations . The red point marks the values $(\theta_e = \pi/4,\theta_p = 0)$ found after the first step of the optimization (\acs{PAPR} = \SI{10.38}{\dB}). (\textbf{b}) \acs{PAPR} (\si{dB}) and (\textbf{c})   time duration (\si{\s}) of the signal containing 99 \% of its power as a function of the radii $r_i$ of the constellations associated to the eigenvalue $\eig[i], i=1,2$. The black point marks the radii used in the first step of the optimization $(r_1 = 1,r_2 = 1)$, while the red one marks the optimized values $(r_1 = 5,r_2 = 0.1)$ used in the experiment (\acs{PAPR} = \SI{9.49}{\dB})}
+  \label{fig:theta_vs_papr_neutral}
+\end{figure}
+
+The \ac{PAPR} of the signal was optimized in two steps. First the two angles  $(\theta_e,\theta_p)$ were optimized by sweeping their values between $0$ and $\pi$ while having $r_1 = r_2 = 1$. The optimum value of \ac{PAPR} found is \SI{10.38}{\dB} for $(\theta_e = \pi/4,\theta_p = 0)$, which is lower by \SI{2.35}{\dB} compared to the worst case where all four constellations are equal (\ac{PAPR} = \SI{12.73}{\dB}) as shown in
+\figurename~\ref{fig:theta_vs_papr_neutral}~(a). Note that the optimal value $\theta_e = \pi/2$ found confirms the results in Section~\ref{sec:nfdm_bit_mapper} and in others previous experimental works on the single polarization case \cite{bulow2016experimental, aref2015experimental}. The \ac{PAPR} seems to be independent on $\theta_p$. To further reduce the \ac{PAPR}, the two radii $(r_1,r_2)$ were then optimized. By varying the radii of the constellations associated to the two eigenvalues, it is possible to partially separate the time domain signal components associated to the two eigenvalues. This allows reducing the \ac{PAPR} at the cost of a longer time duration of the signal, as shown in  \figurename~\ref{fig:theta_vs_papr_neutral}~(b-c). By choosing the set of radii $(r_1 = 5,r_2 = 0.1)$, the \ac{PAPR} results finally in \SI{9.49}{\dB}, while the time duration of the signal containing  99\% of its power is still within the symbol period \Ts{} of \SI{1}{\ns}. In \figurename~\ref{fig:waveforms_const-opt} the \ac{I} and \ac{Q} components of one symbol of the time domain signal are shown before and after the optimization of the \ac{PAPR}.
+
+%%%% .FIG. WAVEFORMS %%%%
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=.5\columnwidth]{./img/constopt_waveforms}
+
+  \caption{(\textbf{a}) \ac{I} and (\textbf{b}) \ac{Q} components of one symbol of the signal when all the four constellations are equal to the reference constellation $C_r$ (\ac{PAPR} = 12.73). (\textbf{c})  \ac{I} and (\textbf{d}) \ac{Q} components  corresponding to the constellations used in the experiment (PAPR = 9.49). The violet (Polarization 1) and green (Polarization 2) curves indicates the components associated to the two polarizations}
+  \label{fig:waveforms_const-opt}
+\end{figure}
+
+
+
+\subsection{Transmitter and receiver digital signal processing}
+
+%%%% .FIG. IDEAL CONST %%%%
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=.7\textwidth]{./img/dp_ideal_constellations.pdf}
+  \caption{Ideal normalized constellations are illustrated schematically: in (\textbf{a}) the discrete eigenvalues $\eig[1] = i 0.3$ and $\eig[2]~=~i 0.6$ are depicted.
+  The scattering coefficients $\nftb[1,2][i],~i=1,2$, associated with the two orthogonal polarization components of the signal, are shown in (\textbf{b}) and (\textbf{c}), respectively. Polarization~1 and Polarization~2 on a violet and green background, respectively. The scattering coefficients associated with $\eig[1]$ are chosen from a \ac{QPSK} constellation  of radius 5 and rotated by $\pi/4$ while those associated with $\eig[2]$ from a \ac{QPSK} constellation  and radius 0.14}
+  \label{fig:idealconst}
+\end{figure}
+
+
+At the transmitter the data bits are mapped to the \scatcoef{} pairs $\{\nftb[1][i],\nftb[2][i]\}$ for $i=1,2$ where the pair of eigenvalues $\{\eig[1] = \iunit0.3,\eig[2] = \iunit0.6\}$ is used for each symbol. We  refer to this set of coefficients, and equivalently to the associated time domain waveform, as a \ac{DP-NFDM}~symbol. The \scatcoef{} associated with the first eigenvalue can assume values drawn from a \ac{QPSK} constellation of radius 5 and rotated by $\pi/4$ while those associated with the second eigenvalue are drawn from a \ac{QPSK} constellation of radius 0.14, as shown in \figurename~\ref{fig:idealconst}.
+% This particular structure of the constellations was chosen to reduce the \ac{PAPR} of the signal at the transmitter, in order to limit the performance losses due to the limited resolution of the \ac{DAC} and due to the nonlinear characteristic of the \ac{EDFA} (See Supplementary Material for a detailed explanation).
+The waveform associated to each \ac{DP-NFDM} symbol is generated using the \ac{DT} described in Section~\ref{sec:INFT_Manakov}, followed by the denormalization in \eqref{eq:normalization}  with normalization parameter
+$T_0 = \SI{47}{\ps}$. This choice of $T_0$ allows fitting the waveform within the symbol period \Ts{} = \SI{1}{\ns} (\SI{1}{GBd}) with enough time guard bands among successive
+\ac{DP-NFDM} symbols, thus satisfying the vanishing boundary conditions required to
+correctly compute the \ac{NFT}. The power $P_{tx}$ of the digital signal thus
+obtained is later used to set the power of the corresponding transmitted
+optical signal.
+
+The channel is assumed to be a link of \acp{SMF} with \ac{EDFA}
+lumped amplification as in the experiment. In order to take into account the presence of the
+losses, the \ac{LPA} approximation is used in the normalization and
+denormalization steps of the waveform before computing the \ac{NFT} and after
+computing the \ac{INFT}, respectively.
+
+At the receiver, the digital signal output by the \ac{DSO} is first rescaled so that its power is $P_{tx}$ (the power of the transmitted optical signal). Then an ideal rectangular filter with bandwidth equal to the 99\% power bandwidth of the signal is used to filter the out of band noise.
+At this point, cross-correlation-based
+frame synchronization using training sequences is performed in order
+to optimally align the \ac{DP-NFDM}~symbol to the processing time-window of duration \mbox{\Ts{} = \SI{1}{\ns}}.
+For each \ac{DP-NFDM} symbol, first the eigenvalues are
+located using the Newton-Raphson search method employing the one-directional trapezoidal method, and then the coefficients $\nftb[1,2][i]$
+are computed on the found eigenvalues using the forward-backward trapezoidal  method. The homodyne configuration of the receiver allows not having a frequency offset between the transmitter laser and the coherent receiver \ac{LO}, but given the non-zero combined linewidth of the two lasers (\textasciitilde 1kHz) their coherence length is limited to about \SI{90}{\km}. This implies that the received constellations are affected by phase noise when the transmission distance exceeds the coherence length of the laser, causing errors in the detection of the symbols. The phase noise is removed by applying the blind phase search algorithm \cite{Pfau:09} in the \ac{NFT} domain to each constellation individually.
+Finally, the \scatcoef{} are rotated back to remove the phase factor acquired during the transmission (\eqref{eq:bscatcoeff}), and the decision on the symbols is taken using a minimum Euclidean distance decisor over the \scatcoef{} space.
+
+
+\subsection{Experimental setup}\label{experimental-setup}
+
+%%%% .FIG. EXPERIMENTAL SETUP %%%%
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{./img/NFTDual_experimental_setup-crop.pdf}
+  \caption{Experimental setup with transmitter and receiver \acs{DSP} chains. Abbreviations not defined in the main text: \ac{BPD}}
+  \label{fig:dp_nfdm_setup}
+\end{figure}
+
+The experimental setup and the block diagrams of the \ac{DSP} are depicted  in \figurename~\ref{fig:dp_nfdm_setup}.
+At the
+transmitter a \ac{FL} with sub-kHz
+linewidth is modulated using an integrated dual polarization \ac{I}/\ac{Q}
+modulator driven by an \ac{AWG} with \SI{20}{\GHz} analog
+bandwidth and \SI{64}{GSa\per\s}. Before uploading it to the \ac{AWG}, the signal
+generated by the \ac{INFT} is pre-distorted using the ideal inverse
+transfer function of the \ac{MZM} ($\asin(\cdot)$). This pre-distortion is
+required in order to have a good trade-off between \ac{SNR} at the output of
+the \ac{MZM} and signal distortions caused by its nonlinear transfer function. Nonetheless, given the still high \ac{PAPR} of the optimized waveform considered (see Section~\ref{sec:constellation_selection}), this
+pre-distortion is not optimal and advanced methods can be employed to
+improve further the quality of the transmitted signal~\cite{Le2017}.
+The channel is a fiber link composed of
+up to nine spans of \ac{SMF} with dispersion parameter \mbox{$D =
+\SI{17.5}{\ps\per\nm\per\km}$}, nonlinear parameter \mbox{$\gamma = \SI[per-mode=reciprocal]{1.25}{\per\watt\per\km}$}, fiber-loss parameter \mbox{$\alpha = \SI{0.195}{\dB\per\km}$}, and \ac{PMD} coefficient <~\SI{0.1}{\ps~\km^{-1/2}}.
+Two different span lengths $\spanl=\SI{41.5}{\km}$ and $\spanl=\SI{83}{\km}$ were employed.
+Considering these channel parameters, the complex baseband signal generated by the \ac{INFT} with \ac{LPA} and denormalized has the following properties: 99\% of its power contained within a bandwidth $W$ of \SI{12.7}{\GHz}, a \ac{PAPR} of \SI{9.49}{\dB} and an average power $P_{tx}$ of \SIlist{5.30;7.70}{dBm} for the span lengths $\spanl=\SI{41.5}{\km}$ and $\spanl=\SI{83}{\km}$, respectively. Given these channel and signal parameters we have that the soliton period, defined as $(\pi/2) L_d$, with $L_d = (W^{}|\dispersion|)^{-1}$ the dispersion length \cite{hasegawa1995solitons,Turitsyn2017}, is 436 km. Being this  much larger than the typical birefringence correlation length, which is on a scale of few tens of meters \cite{menyuk2006interaction}, guarantees the applicability of the Manakov averaged model.
+
+In order to properly match the transmitted signal to the channel, the gain of the \ac{EDFA} at the transmitter is tuned in such a way to set the power of the optical signal to $P_{tx}$.
+The optical signal is then transmitted through the channel.
+
+At the receiver, the signal were first sent through a \SI{0.9}{\nm} \ac{OBPF}, and then a \ac{PC} was used to manually align
+the polarization of the signal to the optical front-end. The use of the \ac{PC} was required to avoid using of polarization tracking algorithms for the \ac{NFT} signals, which were not available at the time of the experiment. In the future it could be possible to use modulation independent polarization tracking algorithms, as an example using independent components analysis \cite{nabavi2015demultiplexing}. The signal is then detected by using a standard coherent receiver (\SI{33}{\GHz} analog bandwidth, \SI{80}{GSa\per\s}), in a homodyne configuration where the transmitter laser is used as \ac{LO}. The acquired digital signal consisting of five blocks of \num{e5} \ac{DP-NFDM} symbols is then fed to the receiver \ac{DSP} chain described previously.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Experimental results}\label{sec:experimental_results}
+\label{experimental-results}
+
+%%%% .FIG. B2B %%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\textwidth]{./img/dp_b2b_ber_vs_osnr.pdf}
+  \caption{System performance in terms of \ac{BER} as a function of the \acs{OSNR} in a back-to-back configuration. The \ac{BER} of the individual constellations are shown by the violet (Polarization 1) and green (Polarization 2) curves and are grouped per eigenvalue ($\eig[1] = \iunit0.3, \eig[2] = \iunit0.6$). The black curve represents the average \ac{BER} over the four constellations}
+  \label{fig:b2bperfomance}
+\end{figure}
+
+
+The system was initially tested in a \ac{B2B} configuration, where the transmitter output has been directly connected to the receiver, in order to obtain the best performance achievable by the system in the sole presence of the intrinsic transceiver distortions (e.g. transmitter front-end distortions, detectors noise, etc.) and added \ac{AWGN} as commonly done for linear coherent system. The \ac{OSNR} was swept by varying the noise power added to the signal at the receiver input. The adopted metric for measuring the performances allows a direct comparison with standard coherent transmission systems. The \ac{OSNR} range considered is the region of interest where the system performance is around the \ac{HD-FEC} threshold.  The measured average \ac{BER}
+is shown in \figurename~\ref{fig:b2bperfomance}.
+A visible effect is the fact that the \ac{BER} is not the same for the four different
+constellations, but it is worse for the two constellations associated with
+the eigenvalue with a higher imaginary part.
+This effect can be related to the dependency of the noise variance of both the eigenvalues and the corresponding scattering coefficient on the imaginary part of the eigenvalues themselves \cite{zhang2015gaussian,zhang2015spectral,Zhang2,hari2016bi,hari2016multieigenvalue}
+% ; an analysis of the noise distribution for the various eigenvalues and scattering coefficients is provided in the Supplementary Material.
+
+%%%% .FIG. Transmission %%%%
+\begin{figure}[t]
+  \centering
+  \subtop[$\spanl=\SI{41.5}{km}$]{
+    \includegraphics[width=.51\textwidth,trim={0 0 8mm 3mm},clip]{./img/dp_BER_vs_distance_tx40km-circled.pdf}
+  }
+  \subtop[$\spanl=\SI{83}{km}$]{
+    \includegraphics[width=.44\textwidth,trim={16mm 0 8mm 3mm},clip]{./img/dp_BER_vs_distance_tx80km-circled.pdf}
+  }
+  \caption{System performance in terms of \ac{BER} as a function of the transmission distance for the four individual constellations for span lengths of $\spanl=\SI{41.5}{km}$ \insetref{a} and $\spanl=\SI{83}{km}$ \insetref{b}. The violet (Polarization 1) and green (Polarization 2) curves are grouped per eigenvalue ($\eig[1] = \iunit0.3,~\eig[2] = \iunit0.6$)}
+  \label{fig:tx_performance_per_eigenvalue}
+\end{figure}
+
+%%%% .FIG. Experimental constellations %%%%
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=.7\textwidth]{./img/experimental_constellations_v3-crop}
+  \caption{The four experimental constellations of the scattering coefficients $\nftb[1,2][i],~i=1,2$ associated with the two eigenvalues ($\eig[1] = \iunit0.3,~\eig[2] = \iunit0.6$) are shown at the transmitter side (left) and after \SI{373.5}{\km} transmission with \SI{41.5}{\km} spans (right). Polarization~1 and Polarization~2 on a violet and green background, respectively}
+  \label{fig:noisy_constellations}
+\end{figure}
+
+%%%% .FIG. NOISE DISTRIBUTION %%%%
+\begin{figure}[p]
+  \includegraphics[width=\textwidth]{./img/spectrum_noise_distribution.pdf}
+
+  \caption{\insetref{a,f} distribution of the imaginary part of the received eigenvalues (reference eigenvalues $(\eig[1] = i 0.3, \eig[2] = \iunit0.6$)), and phase noise distribution of the scattering coefficients $\nftb[1,2][i]$, for the transmission distances of \insetref{b-e} \SI{373.5}{\km} and \insetref{g-l} \SI{332}{\km} using spans of \SI{41.5}{\km} and \SI{83}{\km}, respectively}
+  \label{fig:spectrum_noise_distribution}
+\end{figure}
+
+In order to demonstrate a fiber transmission with the proposed system, we transmitted over a link of $\nspans$~spans of \ac{SMF}  with span length $\spanl=41.5$ and $\spanl=83$~km. The
+performance in terms of \ac{BER} as a function of the transmission distance
+is shown in \figurename~\ref{fig:tx_performance_per_eigenvalue}~(a-b) for the four  constellations. The difference
+in the performance in the two eigenvalues appears in this case too. This can also be seen from the constellation
+plots after \SI{373.5}{\km} in \figurename~\ref{fig:noisy_constellations}, where the two constellations associated with $\eig[2]$ are
+sensibly more degraded than those related to $\eig[1]$, which are still well
+defined. Similar performance can instead be seen in the two different
+polarizations of the same eigenvalue.
+
+An analysis of the noise distribution on the  eigenvalues and scattering coefficients $\nftb[1,2][i]$ has been done for the  transmission distances  of \SI{373.5}{\km} and \SI{332}{\km} performed in the experiment when spans of \SI{41.5}{\km} and \SI{83}{\km} were used, respectively. In \figurename~\ref{fig:spectrum_noise_distribution} the histograms
+of the received eigenvalues (a,f) and scattering coefficients (b-e, g-l) are shown. The variances of the imaginary part of the received eigenvalues and those of the phase of the scattering coefficients are reported in Table~\ref{tab:noise_variance}.
+It is observed that in  both cases the variance of the imaginary part of the eigenvalue $\eig[2] = \iunit0.6$ is about 10\% higher than the one of $\eig[1] = \iunit0.3$. The proportionality of the noise variance on the  imaginary part of the eigenvalue is consistent with the predictions made by the model in \cite{zhang2015gaussian} for the single eigenvalue case.
+The variance of the phase of the scattering coefficients $\nftb[1][2]$ and $\nftb[2][2]$ associated to $\eig[2]$ are 2.34 and 2.91 times those of the scattering coefficients $\nftb[1][1]$ and $\nftb[2][1]$, respectively for the \SI{41.5}{\km} case, and 2.27 and 2.50 for the \SI{83}{\km} case.
+
+\begin{table}[t]
+    \centering
+    \begin{tabular}{ccc}
+    \hline
+    Spectral parameter & \multicolumn{2}{c}{Noise variance} \\
+     & \SI{41.5}{\km} case & \SI{80.5}{km} case \\
+    \hline
+         $\text{Im}(\eig[1])$& $1.54 \times 10^{-3}$ & $18.06 \times 10^{-3}$ \\
+         $\text{Im}(\eig[2])$& $1.70 \times 10^{-3}$& $20.39 \times 10^{-3}$ \\
+         $\phase{\nftb[1][1]}$&$27.77 \times 10^{-3}$ & $39.00 \times 10^{-3}$ \\
+         $\phase{\nftb[2][1]}$&$24.86 \times 10^{-3}$ & $24.62 \times 10^{-3}$ \\
+         $\phase{\nftb[1][2]}$&$65.05 \times 10^{-3}$ & $88.40 \times 10^{-3}$ \\
+         $\phase{\nftb[2][2]}$&$72.45 \times 10^{-3}$ & $61.52 \times 10^{-3}$ \\
+         \hline
+    \end{tabular}
+    \caption{Variance of the imaginary part of the eigenvalues $(\eig[1] = \iunit0.3, \eig[2] = \iunit0.6)$ and of the phase of the corresponding scattering coefficients $\nftb$ for the transmission distances  of \SI{373.5}{\km} and \SI{332}{\km}  when spans of \SI{41.5}{\km} and \SI{83}{\km} are used, respectively. Each variance value has been computed over \num{250000} symbols}
+    \label{tab:noise_variance}
+\end{table}
+
+Finally in \figurename~\ref{fig:tx_performance_40vs80}  the average \ac{BER} for the two span lengths
+used in the test is compared in order to check the impact of the \ac{LPA} approximation.
+As explained in Section~\ref{sec:NFT_loss_and_noise}, worse performances are expected when longer links are used.
+The \ac{BER} curve for the \SI{41.5}{\km} span contains two outlier points at  \SIlist{124.5;249}{km}
+that are slightly worse than the general trend of the curve.
+This is believed to be caused by instabilities in the setup when the related experimental traces were acquired, in particular an incorrect alignment of the polarization to the receiver due to a drift in the polarization state of the received signal. Besides these two points, the rest of the \SI{41.5}{\km} curve lies
+under the one for the \SI{83}{\km} spans, confirming that the use of longer
+spans adds a slight degradation in the performance of the system. The
+maximum reach of the system achieved with \ac{BER} under the \ac{HD-FEC} threshold
+is \SI{373.5}{\km} using \SI{41.5}{\km} spans and \SI{249}{\km} with spans of \SI{83}{\km}.
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.6\textwidth]{./img/dp_BER_vs_distance_tx40vs80km.pdf}
+  \caption{Comparison of the average \ac{BER} as a function of the transmission distance between links of $\SI{41.5}{\km}$ and $\SI{83}{\km}$. The error bars represent the standard deviation over five processed blocks of $10^5$ \ac{DP-NFDM}-symbols}
+  \label{fig:tx_performance_40vs80}
+\end{figure}
+
+It should be noted that in the experimental setup the \ac{PMD} effect was not compensated for.
+However, for the transmission lengths and \ac{PMD} values of the standard \ac{SMF} employed, the accumulated differential group delay is negligible if compared with the pulse duration \cite{Agrawal12_NonlinearFOs_Book}. The impact of \ac{PMD} is therefore not expected to have had a major impact on the results shown. New approaches have been developed to compensate for PMD  effects in linear transmission systems \cite{kikuchi2011analyses}, and a recent work has shown in simulation that for a  \ac{DP-NFDM} system employing the continuous spectrum, \ac{PMD} effects could be compensated in the nonlinear domain by using a linear equalizer \cite{Goossens:17}. Similar techniques may be applied to discrete \ac{DP-NFDM} systems.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CONCLUSIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Summary}\label{sec:nfdm_summary}
+
+In this chapter the theory that describes the dual polarization NFT has been presented. The direct and inverse transformations between the time domain and the nonlinear domain have been described concentrating on the case of a purely discrete nonlinear spectrum. A numerical method, based on the trapezoidal discretization method, to solve the direct \ac{NFT} has been proposed. Moreover, the structure of a \ac{DP-NFDM} optical communication system employing two orthogonal modes of polarization was described for the specific case of a discrete nonlinear spectrum with two eigenvalues.
+The proposed system was then demonstrated experimentally for the first time, showing a transmission of eight bits of information per \ac{DP-NFDM} symbol, with transmission distances up to \SI{373.5}{\km}.
+% Furthermore, we have shown that a powerful, but rather abstract mathematical technique, the Darboux transformation, can have indeed far-reaching impact in applied nonlinear optics namely in fiber-based telecommunication systems. Our results pave the way towards doubling the information rate of \ac{NFT}-based fiber optics communication systems.
+
+
+

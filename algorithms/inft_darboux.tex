@@ -1,0 +1,31 @@
+%!TEX root = ../Thesis.tex
+\begin{algorithm}[t]
+    \caption{\acl{INFT} by \acl{DT}}\label{euclid}
+    \begin{algorithmic}[1]
+        \Procedure{INFT}{$\eig[1], \dots, \eig[N], \nftb[][1], \dots, \nftb[][N]$}
+        \State $\nfld(\nttm) \gets 0$ \Comment{The signal is initialized to be identically zero}
+        \For{$i \gets 1, \dots, N$}\Comment{Initialization of the N auxiliary solutions}
+        \State $A_i \gets 1$
+        \State $B_i \gets -\nftb[][i]$
+        \State $\auxsol^{(i)}(\nttm) \gets \left(
+                        A_i e^{- \iunit \eig[i] \nttm},
+                        B_i e^{ \iunit \eig[i] \nttm} \right)^T$
+        \EndFor
+        \For{$i \gets 1, \dots,  N$}
+        \State $\nfld(\nttm) \gets \nfld(\nttm)+2\iunit(\eig[i]^*-\eig[i])
+        \dfrac{\auxsol_2^{(i)}(\nttm)^*\auxsol_1^{(i)}(\nttm)}{\abs{\auxsol_1^{(i)}(\nttm)}^2 + \abs{\auxsol_2^{(i)}(\nttm)}^2}$\Comment{Signal update}
+        \State $\auxsolmat \gets \begin{pmatrix}
+            \auxsol_1^{(i)} & \auxsol_2^{(i)*} \\
+            \auxsol_2^{(i)} & -\auxsol_1^{(i)*}
+            \end{pmatrix}$
+        \State $\matr{M}_0 \gets diag(\eig[i],~\eig[i]^*)$
+        \State $\matr{G}_{0} \gets \auxsolmat \matr{M}_{0}\auxsolmat^{-1}$
+        \For{$k \gets i+1, \dots, N$}%\Comment{For each of the unused auxiliary solutions }
+        \State $\auxsol^{(k)}(\nttm) \gets\left(\eig[k] \mathcal{\matr{I}}_2-\matr{G}_{0}\right)\auxsol^{(k)}(\nttm)$\Comment{Auxiliary solution update}
+        \EndFor
+        \EndFor
+        \State \textbf{return} $\nflds$
+        \EndProcedure
+    \end{algorithmic}
+    \label{alg:darboux_transform}
+\end{algorithm}

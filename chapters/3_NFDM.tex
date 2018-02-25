@@ -1,0 +1,852 @@
+%!TEX root = ../Thesis.tex
+\chapter{Nonlinear frequency division multiplexing}\label{ch:discrete_NFDM_system}
+In this chapter a detailed description of the structure of a \ac{NFDM}
+transmission system is given, with particular focus on the case where only
+the discrete nonlinear spectrum is modulated. The aim is to provide an overview of
+\ac{NFDM}, discussing some of the peculiar problems
+in building such systems, as well as providing a brief overview on the state-of-the-art methods proposed to overcome some of these limitations.
+
+The name \ac{NFDM} was first introduced in \cite{Yousefi2014,Yousefi2014a} to reflect
+the conceptual similarity with \ac{OFDM}. In an \ac{OFDM} system the information is encoded
+in multiple orthogonal subcarriers to avoid \ac{ISI} and inter-channel
+interference over linear channels \cite{armstrong2009ofdm}. More specifically,
+the data bits are encoded on the Fourier coefficients corresponding to a
+discrete set of fixed frequencies (subcarriers) using standard modulation
+formats (e.g., \ac{PSK}, \ac{QAM}, etc.). Similarly, an \ac{NFDM} system employs
+orthogonal
+degrees of freedom of a signal
+that can be modulated together without leading to mutual interference when
+propagated in the nonlinear fiber channel \cite{Yousefi2014}.
+
+To better clarify this idea, it is first worth considering the situation where
+only the continuous nonlinear spectrum is used, so that the analogy with \ac{OFDM} is one-to-one. In this case, the modulated quantities
+are the continuous spectral amplitudes $\cnft$ associated to a finite set of
+nonlinear frequencies $\{\eig[1], \dots, \eig[K]\}$ and chosen from the continuous
+set of $\eig \in \RR$.
+In the \ac{NFDM} case, however, the ``frequencies'' $\eig$ can also assume complex
+values, in which case are referred to as discrete eigenvalues, thus allowing to
+modulate also the associated discrete spectral amplitudes $\dnft[i]$. In
+this sense the \ac{NFDM} scheme can be seen as an extension of \ac{OFDM}, where more degrees of freedom are available for carrying data.
+
+\ac{NFDM} is only one of the possible \textit{modulations in the nonlinear Fourier
+domain}, in the sense of a modulation where the information is encoded in the nonlinear domain \cite{Turitsyn2017}; however, as we mentioned in the introduction, other types of modulations
+exists, e.g., eigenvalue position modulation
+\cite{Hasegawa,dong2015nonlinear,hari2014multi} or \ac{NIS}
+\cite{prilepsky2014nonlinear}.
+
+The two distinctive characteristics of \ac{NFDM} are:
+\begin{itemize}
+ \item to have a fixed number of $\eig$, real or complex, at specific locations
+ \item to have data encoded in either the spectral amplitudes $\cnft, \dnft[i]$ (or
+equivalently in the scattering coefficients $\nftb[][i]$) corresponding to the set of
+$\eig$ chosen
+\end{itemize}
+
+In the rest of this chapter the structure of a single channel \ac{NFDM} system employing only the discrete spectrum is described. The focus is mainly on the \ac{DSP} required for the implementation of the system. The \ac{NFDM} transmitter is presented in Section~\ref{sec:nfdm_transmitter}. In particular, in
+Section~\ref{sec:nfdm_bit_mapper} the bit mapper is described, and some constellation design aspects are discussed. Then in
+Section~\ref{sec:nfdm_inft} some possible implementations of the \ac{INFT}, required to convert the symbols into a digital time domain signal, are presented. Next, in
+Section~\ref{sec:nfdm_signal_denormalization}, the denormalization
+operation, required to match the normalized signal to the real fiber-channel, is explained. In
+Section~\ref{sec:nfdm_tx_pre-distortion} some problems
+caused by the distorsion introduced by the transmitter components are discussed, and
+some solutions present in the literature are reviewed. In the second part of this chapter the
+\ac{NFDM} receiver is introduced in Section~\ref{sec:nfdm_receiver}. First the operations performed on the time domain signal are described; these includes power rescaling (Section~\ref{sec:nfdm_power_rescaling}), signal filtering (Section~\ref{sec:nfdm_signal_filtering}), and clock recovery and time
+synchronization (Section~\ref{sec:nfdm_clock_recovery}). These operations prepare the signal
+for the \ac{NFT} block (Section~\ref{sec:nfdm_nft}), which computes the nonlinear
+spectrum. Finally the operations performed in the nonlinear domain are described; these are the
+phase estimation (Section~\ref{sec:nfdm_phase_estimation}), and symbol decision and
+data bit recovery (Section~\ref{sec:nfdm_symbol_decision}).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% .SEC. TRANSMITTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Transmitter}\label{sec:nfdm_transmitter}
+\figref{fig:nfdm_transmitter} illustrate the structure of the \ac{NFDM} transmitter together with the specific transmitter \ac{DSP} chain. As it can be seen, the structure is the same of the generic coherent system presented in Section~\ref{sec:coherent_system}.
+
+The first block of the \ac{NFDM} transmitter is the transmitter \ac{DSP}, whose function
+is to convert a stream of data bits to a discrete-time signal
+$\sdTx[i]$.
+\ac{NFDM} is a block transmission as \ac{OFDM}, meaning that in the $i$-th symbol period
+\Tsi{i}, the transmitter modulates a block of $w$ bits onto a  waveform
+$\sdTx[i]$. This waveform has a duration of \Ts{} seconds, including the null guard bands required
+to satisfy the vanishing boundary conditions of the \ac{NFT}. The generated waveforms are then concatenated
+to form the full signal $\sdTx =
+\sum_{i=-\infty}^{+\infty}\sdTx[i]$. The \ac{DAC} converts this signal
+to its analog equivalent, which is then used to drive an external optical
+modulator. The modulator shapes a  continuous wave laser to generate the
+continuous-time optical signal $\flds[Tx]$. The power of the waveform is
+regulated by an optical amplifier, and then the waveform is transmitted through the
+nonlinear channel.
+
+In the following sections we describe in detail all the blocks of the \ac{DSP} chain.
+
+%%%% .FIG. NFDM TRANSMITTER %%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{./img/NFDMTransmitter_v1-crop}
+  \caption{Block diagram of the \ac{NFDM} transmitter}
+  \label{fig:nfdm_transmitter}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. BIT MAPPER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Bit mapper and constellation design}\label{sec:nfdm_bit_mapper}
+
+The purpose of the bit mapper is to map the binary digital data stream $\{b_l\}$ of period $T_b$ to a
+sequence of symbols in the nonlinear domain.
+Most of the works in the literature employing discrete \ac{NFDM} systems use  different values of the discrete spectral amplitudes $\dnft[i] =
+\nftb[][i]/\nftaderiv[i]$ \cite{le201764, geisler2016experimental} as
+symbol alphabet. Recently though, it
+was shown that it is better to encode the data directly on the $\nftb[][i]$
+scattering coefficient. This allows reducing the noise on the symbols caused by
+numerical errors \cite{Aref2016c} and by the noise component of $\nftaderiv[i]$
+\cite{HongKong}. In this thesis this last approach is used, given the
+advantages it offers.
+
+%%%% .FIG. NFDM DIGITAL MODULATOR %%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{./img/nfdm_digital_modulator}
+  \caption{\ac{NFDM} bit mapper and \ac{INFT} block}
+  \label{fig:nfdm_digital_modulator}
+\end{figure}
+
+The architecture of the \ac{NFDM} digital modulator is illustrated in
+\figref{fig:nfdm_digital_modulator}. A \ac{S/P} converter partitions
+the data binary sequence in blocks of length $\bitsperblock$, each of which constitutes a
+single data frame. Each block is further subdivided in $\nEig$ sub-blocks of length
+$k = \bitsperblock/\nEig$, where $\nEig$ is the number of eigenvalues $\eig[i]$ used. Each of the $k$ bits of the
+sub-block $i$ are mapped to one of the $M = 2^k$ possible complex values of the
+scattering coefficient $\nftb[][i]$, associated to the discrete eigenvalue $\eig[i],i=1,\dots,N$, using for example the Grey mapping \cite{proakisdigital}. It was
+implicitly assumed that all the constellations have the same order $M$, even
+though this is not a constraint.
+
+
+The set of eigenvalues and corresponding scattering coefficients output by the \ac{NFDM} bit mapper constitute an \nfdmsymbol{} of period \Ts{}, which can be written as  $ \matr{s} = \nfdmsymtx{}$. This symbol is passed to the \ac{INFT} block that converts it to a waveform.
+%TODO: If necessary explain better numerical error: I am computing a derivative close to a zero. a' noise variance is higher than the one in b, and so corrupt more q
+
+% Indeed, the scattering coefficient $\nfta$, and hence its derivative $\nftaderiv$, does not contain any information required to retrieve the information data and they are only required to locate the eigenvalue positions. For this reason
+
+The choice of the number and location of the eigenvalues, and of the order $M$ and shape of the $\nftb[][i]$ constellations defines what in this thesis is referred to as the \textit{modulation format} of the \ac{NFDM} system. Given some system design constraints, such as available power and bandwidth, duration of the time domain signal, or desirable spectral efficiency, the choice of the modulation format is in general a complex problem in the \ac{NFDM} case. This is due to the complicated relation between the nonlinear spectrum and the time domain waveform. In the following sections the problems of placing the eigenvalues and deciding the constellations to use are discussed more in detail.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% .PAR. EIGENVALUE PLACEMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{Eigenvalues placement}
+\paragraph{Eigenvalues placement}\label{par:eigenvalue_placement}
+
+The position of the eigenvalues on the complex plane is an important aspect in the design of an \ac{NFDM} system. Indeed, it influences the bandwidth and power of the time domain signal $\nflds$, as we discussed in Section~\ref{sec:spectrum_signal_relation}, and it can also affect the symbol rate of the system.
+
+In particular, the real part of the eigenvalue determines the frequency of the solitonic
+component of the time domain signal associated to that eigenvalue. From this we can infer that spreading the eigenvalues
+along the real axis direction gives rise to a time domain signal with an
+overall broader bandwidth and components traveling
+at different speeds. The different velocities of the components make the signal disperse as it propagates, with the consequence
+%causing an overall time broadening of the signal This can be seen in verified by letting the multi-soliton propagate
+%long enough, until the point where it breaks up into separated solitons
+%\cite{shabat1972exact}.
+that the longer is the transmission distance, the larger needs to be the symbol period \Ts{} including guard bands (lower
+symbol rate). This is necessary to guarantee that at the receiver the signal corresponding to one \ac{NFDM}-symbol fits
+completely into the processing window of duration \Ts{} without overlapping with neighboring \ac{NFDM}-symbols. To understand this we can look at the
+the power profile of a multi-soliton, corresponding to the nonlinear spectrum composed of the three eigenvalues $\{-0.2+ \iunit 10.45, \iunit 0.3, 0.2+ \iunit 0.45\}$, as a function of the propagation distance, shown in \figref{fig:real_part_eigenvalues}. At the transmitter the multi-soliton fits into the  symbol period of duration $T_s = \SI{1}{\ns}$.
+At the maximum transmission distance, the multi-solition breaks up into three separated fundamental solitons (\figref{fig:real_part_eigenvalues}~(c)) and has a duration of \SI{2}{\ns}, so that only the central component falls into the receiver processing window of duration \SI{1}{\ns}.
+To deal with this effect the symbol rate have to be decreased to have a longer symbol
+period that accommodates the dispersed multi-soliton.
+%\cite{shabat1972exact}
+
+% A way to minimize the
+% required processing window is to set the absolute value of the different $\nftb$
+% in such a way that at the transmitter the slow components are located at the end
+% of the symbol period and the fast ones at the beginning of it. As the pulse
+% propagates it will shrink first for than expanding again indefinitely making
+% these components switch position. With a proper choice of $|\nftb|$ it is
+% possible to make the pulse-width at the receiver the same as the transmitter
+% \cite{buelow2016transmission,aref2016designaspects}.
+
+The imaginary part of the eigenvalues is proportional to the energy of the signal through the Parseval's identity for the \ac{NFT} \cite{Yousefi2014}. This tells us that adding an eigenvalue to the spectrum requires more and more energy as its imaginary part is increased.
+
+To minimize the power consumption and the required bandwidth the eigenvalues should be packed as close as possible over the complex plane. The minimum distance among the real and imaginary components of the eigenvalues is determined by the variance of the noise on the complex plane. This noise is in general non-Gaussian and uncorrelated in the real and imaginary axis directionsq, and its variance in both axes is proportional to the imaginary part of the eigenvalue
+\cite{zhang2015gaussian,zhang2015spectral,Zhang2,hari2016multieigenvalue,hari2016bi}.
+%\cite{zhang2015gaussian,zhang2015spectral}.
+For this reason to pack the eigenvalue as close as possible, subject to the noise variance, non-equally spaced placement of the eigenvalues \cite{vaibhav2016multipoint} should be used.
+% An example of an eigenvalue space distribution is given in \figref{fig:eigenvalue_space_distribution}.
+
+The problem of optimally placing the eigenvalues on the complex plane given some constraints is not solved yet, and further characterizations of the noise are required to help in getting closer to the solution of this problem.
+
+% %%%% .FIG. NON-EQUALLY DISTRBUTED EIGENVALUES %%%%
+% \begin{figure}[!htb]
+%   \centering
+%   \includegraphics[width=.7\textwidth]{./img/drafts/eigenvalue_space_distribution.jpg}
+%   \caption{The non-equally spaced eigenvalue constellation takes into account the noise variance proportional to the imaginary part of each eigenvalue}
+%   \label{fig:eigenvalue_space_distribution}
+% \end{figure}
+
+%%%% .FIG. EIGENVALUES WITH REAL PART %%%%
+\begin{figure}[t]
+  \centering
+  %\includegraphics[width=\textwidth]{./img/drafts/real_part_eigenvalues.jpg}
+  \subtop[Input 1]{
+    \includegraphics[height=.285\textwidth, valign=t]{./img/input_signal_unitary}
+  }
+  \subtop[Power profile evolution]{
+    \includegraphics[height=.285\textwidth, valign=t]{./img/distance_evolution_unitary}
+  }
+  \subtop[Output 1]{
+    \includegraphics[height=.285\textwidth, valign=t]{./img/output_signal_unitary}
+  }
+
+  \figuresvspace
+  \subtop[Input 2]{
+    \includegraphics[height=.285\textwidth, valign=t]{./img/input_signal_optimized}
+  }
+  \subtop[Power profile evolution]{
+    \includegraphics[height=.285\textwidth, valign=t]{./img/distance_evolution_optimized}
+  }
+  \subtop[Output 2]{
+    \includegraphics[height=.285\textwidth, valign=t]{./img/output_signal_optimized}
+  }
+
+  \caption{A multi-soliton whose nonlinear spectrum is composed of the eigenvalues $\{-0.2+ \iunit 10.45, \iunit 0.3, 0.2+ \iunit 0.45\}$ is considered in the two cases where the absolute value of $\nftb[][i]$ is set to $\{20.54, 0.90, 0.03\}$ (Case 1) and $\{0.03, 0.90, 20.54\}$ (Case 2). The time profile of the multi-soliton at the input of the fiber is shown in \insetref{a} and \insetref{b}, and the time profile at the output of the fiber is shown in  \insetref{c} and \insetref{f} for the two cases, respectively. The processing window of the receiver, of duration \Ts{} = \SI{1}{\ns}, is marked by green dashed lines}
+  \label{fig:real_part_eigenvalues}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%% .PAR. CONST SHAPING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{Choice of the $\nftb[][i]$ constellations}
+\paragraph{Choice of the $\nftb[][i]$ constellations}
+% The easiest type of modulation of the discrete spectrum is on/off keying in the eigenvalues space that is given a set of eigenvalues each symbol consists in sending only one of them [REF] or a combination of them [REF]. A NFDM system similarity to an OFDM system considers instead a number of fixed eigenvalues and modulates their discrete spectral amplitudes instead.
+Another important design aspect of an \ac{NFDM}
+system is the choice of the of constellations of the scattering coefficients
+$\nftb[][i]$ associated to different eigenvalues $\eig[i]$.
+%to use and the relation
+% among the constellations of the scattering coefficients $\nftb[][i]$ associated to
+% different eigenvalues $\eig$ is critical given that .
+As explained in Section~\ref{sec:spectrum_signal_relation}, the absolute value
+of $\nftb[][i]$ determines the position in time of the soliton component associated
+to the eigenvalue $\eig[i]$, and not its amplitude as one may erroneously think. For
+this reason the choice of \ac{PSK} constellations is often made when the
+eigenvalues have zero real part \cite{buelow2016transmission}.
+
+% Indeed, when
+% using constellations with the proper fixed radius the resulting time domain
+% waveform is maximally confined in time, allowing the smallest symbol period and
+% so the highest baud rate.
+
+In some cases, on the other hand, it is beneficial to choose constellations with different radii in order to
+separate temporally the solitonic components. One example is when jointly
+modulation of the continuous and discrete spectrum is performed. Indeed, in this case the symbol period may
+be determined by the portion of the signal related to the continuous spectrum \cite{aref2016demonstration}. Another example is when multiple eigenvalues with non-zero real part are used \cite{buelow2016transmission}.
+
+To give a practical example of how the choice of the radii of the constellations $\nftb[][i]$ can affect the properties of the system we can consider again the example given in the previous section, where the multi-soliton with nonlinear spectrum composed of three eigenvalues $\{-0.2+ \iunit 10.45, \iunit 0.3, 0.2+ \iunit 0.45\}$ was propagated in the fiber. If the constellation radii are set to $\{0.03, 0.90, 20.54\}$,  the multi-soliton ``focuses'' in the middle of the link where it is compressed in time. In this way its time duration at the maximum transmission distance is the same as the one at the transmitter. This is illustrated in \figref{fig:real_part_eigenvalues}. In this way the symbol period \Ts{} does not need to be incremented to accommodate the dispersed signal, and the symbol rate of the system is not reduced. The design of the nonlinear spectrum given a constraint on the duration of the corresponding time domain signal is still an open problem.  Recently, a solution was proposed for the continuous spectrum case \cite{WahlsECOC2017}, but a general solution for an arbitrary nonlinear spectrum is not yet available.
+
+
+%%%% .FIG. PAPR vs THETA %%%%
+\begin{figure}[t]
+   \centering
+   % requires [export]{adjustbox} for vertical aligning
+   \includegraphics[width=.7\textwidth, valign=t]{./img/PAPR_vs_theta_e}
+   \includegraphics[width=.19\textwidth, valign=t]{./img/constellations_optimization_v1-crop}
+   \caption{\ac{PAPR} of the signal $\nflds$ as a function of the angle $\theta_e$ between the two $\nftb[][i]$ \ac{QPSK} constellations with unitary radius associated to the eigenvalues $\{\eig[1]=\iunit0.3, \eig[2]=\iunit 0.6\}$ of the nonlinear spectrum}
+  \label{fig:paprVStheta}
+\end{figure}
+
+% As the previous point shown the
+% relation among the constellations associated to the different eigenvalues is
+% important in determining the characteristics of the signal.
+Another  important aspect that determines the characteristics of the time domain signal $\sTx$, such as its
+\acf{PAPR}, % I am forcing the expansion of PAPR because it does not it automatically
+is the phase rotation among the different constellations.
+The \ac{PAPR} of $\sTx$ is defined as
+\begin{equation}
+\papr = 10 \log \left( \dfrac{ \max{(|\sTx|^2)}}{P} \right)
+\end{equation}
+where $P = \int_0^{T}{ |\sTx|^2 } d\ttm / T$ is the average power of the field,  and $T$ is its time duration.
+If we for example
+consider a 2-eigenvalues system with $\nftb[][i]$ modulated with \ac{QPSK}. If the relative angle $\theta_e$ between the two constellations is varied, we can see in
+\figref{fig:paprVStheta} how the resulting
+\ac{PAPR} % For some reason PAPR is not expanded correctly by the acronym
+of the time domain signal changes significantly, achieving a desirable minimum when $\theta_e = \pi/4$. Similar results were reported and verified
+experimentally in \cite{bulow2016experimental, Aref3}.
+% Moreover in those works it was shown how the different pulses generated by the different combinations of phases of $\nftb[][1]$ and $\nftb[][2]$ have different PAPR, and how the one with higher PAPR performs worse than the other.
+In the same work was proposed also to prune some of the symbols from the constellation to minimize the overall \ac{PAPR} of the signal, at the expense of the transmission rate. A similar approach was also proposed in \cite{hari2016multieigenvalue} in order to increase the spectral efficiency of the system.
+%Finally squared constellation can also be used have also been used \cite{HongKong}.
+%Variation of the radius? or in dual pol section?
+
+In summary, finding the optimal modulation format that maximizes the performance  of a discrete \ac{NFDM} system, while meeting a set of design constraints,  is still an open problem. Further insights in the mathematical relation between the modulation format and the time domain signal properties will help solving this problem. The use of blind optimization techniques borrowed from the machine learning field aldo could improve the designing of such systems.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. INFT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{INFT}\label{sec:nfdm_inft}
+
+The \ac{NFDM}-symbols output by the digital modulator are fed into the \ac{INFT} block, which computes the corresponding discrete time domain signal $\nflddig$ to be transmitted.
+
+There are several algorithms that can be used to compute the \ac{INFT}. In the specific case where the spectrum is purely discrete, the Riemann-Hilbert method, the Hirota bilinearization scheme, or the \ac{DT} can be used \cite{Yousefi2014a}.
+Alternative faster algorithms have also been introduced \cite{wahls2015fast}, and recently also a fast implementation of the \ac{DT} has been proposed \cite{vaibhav2017introducing}. This last one can achieve a computational complexity as low as $O(N K )$ when $N < K$, where $K$ is the number of samples of the time domain signal and $N$ is the number of eigenvalues.
+% This shows how \ac{INFT} algorithms are evolving, quickly approaching
+% complexities similar to the \ac{IFFT} algorithm ($O(K \log K)$), that could make
+% them implementable in real-world systems.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. SIGNAL DENORM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Optimization of the \To{} parameter and signal power}
+\subsection{Signal denormalization}\label{sec:nfdm_signal_denormalization}
+The signal $\nflddig$ produced by the \ac{INFT} block is matched to the normalized channel
+described by \eqref{eq:NLSE_normalized}. In order to create the actual signal $\sdTx$
+that will be transmitted over the real channel, the output of the \ac{INFT} block needs
+to be denormalized according to \eqref{eq:change_of_variables_NLSE}. The
+shape of the signal in the normalized regime is set by the position of the
+eigenvalues $\eig[i]$ and by their scattering coefficients $\nftb[][i]$. Although, when the signal
+is denormalized, the free parameter \To{} can be tuned to ``stretch'' the
+signal and vary jointly its power and duration \cite{gui2016phase}.
+
+A peculiarity of the discrete \ac{NFDM} system is that it is not possible to vary
+freely the power of the transmitted signal without affecting other system
+parameters, as it is instead possible in standard coherent systems. Indeed, the
+\ac{INFT} block generates a signal that is properly matched to the channel,
+which means that the amplitude of the signal must satisfy a
+proper relation with the signal time duration and bandwidth.
+
+Considering the basic soliton case as in \eqref{eq:spectrum_signal_relation}, we
+know that its peak amplitude and pulse width must be linked for the soliton to maintain its shape during propagation. In particular,
+the lower the peak amplitude is, the larger must its duration be (with corresponding lower bandwidth).
+Similarly, multi-eigenvalues signals need to satisfy particular constrains on
+the power-duration relation.
+
+%%%% .FIG. OPTIMIZATION OF \To{} %%%%
+\begin{figure}[t]
+  \centering
+   \subtop[Normalized]{
+        \includegraphics[height=.21\textwidth]{./img/sech_normalized}
+        \label{subfig:To_optimization-a}
+    }
+    %\hfill
+    \subtop[\To{} = $0.2\times$\Ts{}]{
+        \includegraphics[height=.21\textwidth]{./img/sech_denormalized_3}
+        \label{subfig:To_optimization-d}
+    }
+    \subtop[\To{} = $0.1\times$\Ts{}]{
+        \includegraphics[height=.21\textwidth]{./img/sech_denormalized_2}
+        \label{subfig:To_optimization-c}
+    }
+    \subtop[\To{} = $0.05\times$\Ts{}]{
+        \includegraphics[height=.21\textwidth]{./img/sech_denormalized_1}
+        \label{subfig:To_optimization-b}
+    }
+
+%   \includegraphics[width=.7\textwidth]{./img/drafts/T0_optimization.jpg}
+  \caption{ \insetref{a} Time profile of the signal $\nflds$ in the normalized domain. Its nonlinear spectrum is $\{\eig[1]=\iunit0.5,\:  \nftb[][1]=1\}$. \insetref{c-d} Corresponding denormalized signal $\fld(\ttm)$ for three different values of the free normalization parameter \To{} (given as a fraction of the symbol period \Ts{})}
+  \label{fig:To_optimization}
+\end{figure}
+
+If we assume that the symbol rate \Rs{} of the system is fixed, the symbol
+period \Ts{}, i.e., the time slot where one \ac{NFDM}-symbol waveform needs to fit, is
+fixed as well.
+By reducing \To{} the duration of the pulse can go from the extreme where the
+signal is narrow and isolated by null guard bands within the symbol period \Ts
+(\figref{fig:To_optimization}~(a)), to the other extreme where its duration is
+so broad that part of the signal is effectively cropped because it exceeds the
+symbol period (\figref{fig:To_optimization}~(c)). In the first extreme the power
+of the signal is high
+%so that an higher \ac{SNR} [define or remove] can be achieved but also
+and its bandwidth is broad, while in the second extreme the power
+and the bandwidth are both reduced. \To{} needs to be optimized properly in
+order minimize the occupied bandwidth while maintaining a power level high
+enough to contrast the noise, and at the same time make the guard bands large enough to avoid signal cropping and
+\ac{ISI} among neighboring symbols at the receiver
+(\figref{fig:To_optimization}~(b)).
+
+Depending on the design constraints of the system, we may want to fix other properties of the signal, such as its maximum power (and so its bandwidth), and optimize \To{} together with the symbol  rate \Rs.
+
+% In a dynamic environment where the available OSNR varies with time, it is not just possible to vary the power of the signal to compensate for it because as we have shown this will affect other parameters. For this reason further investigation are needed to study other approaches to adapt to time-varying OSNR as for example modulation format adaptation [ref].
+
+In a real system the denormalization happens in two steps. The time
+denormalization is performed directly by the \ac{INFT} block by using the symbol
+rate, the sampling frequency, and the \To{} parameter. Then the denormalization
+algorithm outputs the power $P_{tx}$ that the signal needs to have prior to entering the fiber channel in order to be properly matched to it (see the block diagram in \figref{fig:nfdm_transmitter}).
+
+The impact of fluctuations in the transmitter launch power $P_{tx}$ on the performance of a discrete \ac{NFDM} system has been investigated numerically \cite{gui2016phase} and experimentally \cite{geisler2017influence}. The results shows that even variations of a single \si{dB} in the power can lead to differences of one order of magnitude in the \ac{BER} of the system.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. TX PRE-DIST %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Optimizations required when the LPA is used e.g. Aref}
+\subsection{Transmitter transfer function pre-distortion}\label{sec:nfdm_tx_pre-distortion}
+\ac{NFDM} systems are very sensitive to the distortions of the transmitted signal given that the signal needs to be properly matched to the channel in order for the spectrum to propagate linearly in the nonlinear domain.
+
+Distortions of the signal can be caused by linear and nonlinear effects, such as
+limited bandwidth and limited \ac{ENOB} of the transmitter \ac{DAC}, linear distortions introduced by the  the electrical
+front-end, and nonlinear transfer function and limited extinction ratio of the
+\ac{MZM}. In \figref{fig:mzm_distortion} for example, it is shown how the
+distortion of the trasmitted signal due the nonlinear transfer function of the
+\ac{MZM} increases the variance of the noise in the eigenvalue plane, reducing also the Gaussian characteristic of the noise. Considering the nonlinear spectrum composed of the two eigenvalues $\{\eig[1]=\iunit0.3, \iunit0.6\}$, and a drive voltage of the \ac{MZM} equal to its half-wave voltage $V_{\pi}$, we can see in \figref{fig:mzm_distortion}~(a) that the detected eigenvalues tend to split in multiple clusters and get closer to each other. When the \ac{OSNR} is reduced, \figref{fig:mzm_distortion}~(b), the net effect is an increased noise variance and a smaller distance between the two clusters corresponding to the two reference eigenvalues.
+
+%%%% .FIG. EFFECT MZM %%%%
+\begin{figure}[!htb]
+  \centering
+  \subtop[OSNR = \SI{30}{\dB}]{
+        \includegraphics[height=.255\textwidth]{./img/const_eig_mzm_OSNR30_Vamp1}
+        \includegraphics[height=.255\textwidth]{./img/const_eig_mzm_OSNR30_Vamp3}
+        \label{subfig:mzm_distortion-a}
+    }
+    %\hfill
+    \subtop[OSNR = \SI{15}{\dB}]{
+        \includegraphics[height=.255\textwidth]{./img/const_eig_mzm_OSNR15_Vamp1}
+        \includegraphics[height=.255\textwidth]{./img/const_eig_mzm_OSNR15_Vamp3}
+        \label{subfig:mzm_distortion-b}
+    }
+  \caption{Eigenvalue constellations corresponding to two peak driving voltages of the \ac{MZM}: $0.33\times V_{\pi}$ and $1 \times V_{\pi}$, with $V_{\pi}$ the half-wave voltage of the modulator. Two \ac{OSNR} levels of the signal are considered: \insetref{a} \ac{OSNR} = \SI{30}{\dB} and \insetref{b} \ac{OSNR} = \SI{15}{\dB}}
+  \label{fig:mzm_distortion}
+\end{figure}
+
+%In the presence of noise this effects worsen the
+% noise variance...
+
+Moreover, the waveforms corresponding to the discrete spectrum of the \ac{NFT} may
+have a particular high \ac{PAPR}, as mentioned already in
+a previous section, exacerbating even more some of these effects, as the \ac{DAC}
+quantization error.
+
+Digital pre-distortion techniques, as those reported in \cite{napoli2017digital}, can be used to
+compensate the \ac{MZM} transfer function for example. More advanced adaptive
+techniques, able to compensate for linear and nonlinear distortions of the
+transmitter, have recently successfully used to improve the performance of a
+continuous spectrum \ac{NFDM} system \cite{Le2017}. They could be possibly applied to  discrete \ac{NFDM} systems in the future.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% .SEC. RECEIVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Receiver}\label{sec:nfdm_receiver}
+The \ac{NFDM} receiver is illustrated in \figref{fig:nfdm_receiver}. The optical
+signal  at the output of the fiber $\sRx$ is detected by the coherent front-end
+and digitized by the \ac{ADC}. The digital waveform $\sdRx$ is then processed by
+the receiver \ac{DSP} chain in order to recover the transmitted data bits. To
+achieve this, the signal is first filtered and then synchronized to the processing
+window of the receiver. Then the signal is sliced in blocks of duration \Ts{},
+and each of these is processed by the \ac{NFT} block to obtain the nonlinear
+spectrum. The inverse transfer function of the fiber channel
+$H(\eig[i], \fiberl) = \nftInvH[i][\fiberl / \nftcvL]$ is applied to
+the detected nonlinear spectrum to obtain the received \ac{NFDM}-symbol {$\matr{r} =
+\nfdmsymrx{}$}. The phase noise due to the limited linewidth of the transmitter laser and receiver \ac{LO}, is removed by a  phase estimation block that operated in the nonlinear domain. Finally a symbol decisor takes a decision on the
+\ac{NFDM}-symbols and recover the data bits.
+
+In the following sections the various blocks that constitute the \ac{NFDM} receiver \ac{DSP} chain are described in details.
+
+%%%% .FIG. NFDM RECEIVER %%%%
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{./img/NFDMReceiver_v1-crop}
+  \caption{Block diagram of the \ac{NFDM} receiver}
+  \label{fig:nfdm_receiver}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. POWER RESCALING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Signal amplitude rescaling}\label{sec:nfdm_power_rescaling}
+
+The receiver \ac{DSP} of a standard coherent system generally operates with a normalized version of the digital signal, such that the  processing is independent of the absolute amplitude of $\sdRx$. This is not possible in a \ac{NFDM} system. Indeed, the \ac{NFT}
+uses the knowledge on the signal together with the specific channel parameters to properly compute the nonlinear spectrum. To this end it is necessary to precisely rescale the amplitude of the received digital signal $\sdRx$.
+
+In Section~\ref{sec:nfdm_signal_denormalization} we mentioned how the \ac{BER} of the \ac{NFDM} system is very sensitive to the launch power of the transmitted signal $\sTx$. The same is true for the power of $\sdRx$. In this second case though, the power can be adjusted in the digital domain, making the problem less critical then the one at the transmitter.
+
+The amplitude rescaling can be done by setting the power of $\sdRx$ to the power
+$P_{Tx}$ of the signal $\sdTx$ generated at the transmitter by the \ac{INFT} and denormalized.
+The first problem of this approach is that the received signal is noisy, and $P_{Tx}$ does not account for the additional noise power.
+A better way to estimate the rescaling power, could be to use the \ac{SNR} information to compute a new power $P_1$ as follows
+\begin{equation}\label{eq:P1_rescaling}
+ P_1 = P_{Tx}\left(1 + \dfrac{1}{\snr}\right)
+\end{equation}
+where $\snr = \osnr \times (2 B_{ref}) / W$ with $B_{ref} = \SI{12.5}{\GHz}$ and $W$ the 99~\% power bandwidth of the signal $\sdRx$ \cite{Essiambre}.
+
+%%%% .FIG. RX POWER RESCALING %%%%
+\begin{figure}[t]
+
+  \centering
+  \subtop[Rescaling using OSNR]{
+    \includegraphics[width=.475\textwidth]{./img/rx_power_osnr_rescaling.pdf}
+  }
+  \hfill
+  \subtop[Power offset optimization]{
+    \includegraphics[width=.475\textwidth]{./img/rx_power_rescaling_offset.pdf}
+  }
+  \figuresvspace
+  \subtop[Rescaling using OSNR and \SI{1.5}{\dB}  offset]{
+    \includegraphics[width=.475\textwidth]{./img/rx_power_osnr_rescaling_offset.pdf}
+  }
+  \caption{\insetref{a} \ac{BER} as a function of the \ac{OSNR} using the transmitted power $P_{tx}$ (light blue) and the power $P_1$ that uses the \ac{OSNR} information according to \eqref{eq:P1_rescaling} (orange). \insetref{b} Optimization of an additional power offset to $P_1$. \insetref{c} \ac{BER} as a function of the \ac{OSNR} when using the transmitted power $P_{tx}$ (light blue) and the  rescaling using \ac{OSNR} plus a fixed \SI{1.5}{\dB} offset (orange)}
+  \label{fig:rx_power_offset}
+\end{figure}
+
+In \figref{fig:rx_power_offset}~(a) the \ac{BER} as a function of the \ac{OSNR} is shown for the case where
+ $P_{Tx}$ and $P_1\frac{}{}$ are used to rescale the
+received signal of a 2-eigenvalue \ac{NFDM} system in a B2B configuration. We
+can see that there is a slight performance gain in terms of \ac{OSNR} when $P_1$ is used. The gain in this
+case is \SI{0.4}{\dB} at the \ac{HD-FEC} level.
+In \figref{fig:rx_power_offset}~(b) the \ac{BER} performance is shown when a further
+power offset is added to $P_1$ for the specific case of \ac{OSNR} = \SI{11}{dB}. The optimum power in this case is \SI{1.5}{\dBm}
+higher that the predicted one. This type of behavior could be expected given that
+in the presence of the noise, the \ac{NLSE} is not integrable, and so the theoretical
+prediction of the optimum rescaling power may not be exact. Finally in \figref{fig:rx_power_offset}~(c) the \ac{BER} as a function of the \ac{OSNR}
+is shown when the rescaling power $P_2 = P_1 + \SI{1.5}{\dB}$ is used. The gain in terms of \ac{OSNR} at the \ac{HD-FEC} level is of \SI{1.5}{\dB} in this case. We can see that, even if the offset of \SI{1.5}{\dB} was obtained for the specific  \ac{OSNR} level of \SI{11}{dB}, adding this offset to the rescaling power is beneficial also for the range of \acp{OSNR} from \SI{6}{\dB} to \SI{14}{\dB}, while it becomes detrimental above this \ac{OSNR} value.
+
+When also losses
+are present and the \ac{LPA} approximation is used, the optimal power could be
+further offset from the predicted one. In a practical system, where noise and
+losses are present, the best way to achieve the maximum performance of the
+system is to optimize the power rescaling value numerically.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. SIGNAL FILTERING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Signal filtering}\label{sec:nfdm_signal_filtering}
+Filtering the signal at the receiver is required for two reasons: extracting a single channel from the whole spectrum and minimizing the noise.
+
+Let us first consider the case of a single channel system. The matched filter is the optimal filter that maximizes the \ac{SNR} for a linear system affected by \ac{AWGN}. In a fiber-optic communication system though, the channel is nonlinear, and the noise is in general not additive white Gaussian. In this scenario the matched filter is not optimal anymore as shown in \cite{liga2015optimum}. In the same work it was shown that filtering using a rectangular low pass filter is a better choice, when the optimal filter is unknown. The bandwidth of the filter must be large enough to contain the entire signal bandwidth.
+
+In the case of a discrete \ac{NFDM} system, where the optimal filter is unknown, using a
+rectangular filter seems a logical choice. The only problem left
+is finding the optimal filter bandwidth. A peculiarity of a discrete \ac{NFDM} system
+is that the waveforms associated to different \ac{NFDM} symbols have different
+bandwidths. Moreover, the bandwidth of the \ac{NFDM} signals varies
+during propagation in the fiber channel \cite{gui2016phase}.
+
+%%%% .FIG. FILTER BANDWIDTH %%%%
+\begin{figure}[!t]
+  \centering
+  \subtop[Bandwidth evolution]{
+    \includegraphics[width=.98\textwidth]{./img/bandwidth_evolution.pdf}
+  }
+  \figuresvspace
+  \raggedright
+  \subtop[Input signals]{
+    \includegraphics[height=.283\textwidth]{./img/bandwidth_evolution_input_signals.pdf}
+  }
+  \hspace{0.5mm}
+  \subtop[Output signals]{
+    \includegraphics[height=.283\textwidth]{./img/bandwidth_evolution_output_signals.pdf}
+  }
+  \hspace{5mm}
+
+  \caption{\insetref{a} Evolution of the bandwidth along the fiber for the $\Lambda$-shaped (violet) and $M$-shaped (orange) signals. Pulses at the input \insetref{b} and output \insetref{c} of the fiber channel}
+  \label{fig:bandwidth_evolution}
+\end{figure}
+
+To show this we can consider an \ac{NFDM} system with two eigenvalues $\{\eig[1]\iunit0.3, \eig[2]\iunit0.6\}$. If we set the value of the scattering coefficients $\nftb[][i]$ associated to the two eigenvalues to $\{1, \exp (\iunit 1/4\pi)\}$ and $\{1, \exp (\iunit 3/4\pi)\}$ we obtain in the first case a $\Lambda$-shaped pulse, whose 99\% power bandwidth is 1.5 times that of the $M$-shaped pulse obtained in the second case. The two pulses are shown in  \figref{fig:bandwidth_evolution}~(b). The evolution of the bandwidth of the two pulses as they are transmitted through \SI{2000}{\km} of lossless \ac{SMF} is shown in \figref{fig:bandwidth_evolution}~(a), and the two pulses at the output of the fiber are shown in \figref{fig:bandwidth_evolution}~(c). We can see that the bandwidth of the pulses at the output of the fiber can be higher than the one at the input. This should be taken into account in order to set the filter bandwidth to the maximum value of bandwidth that can occur for any of the pulses in the system.
+
+Let us now consider a multi user scenario  where different parts of the nonlinear spectrum are assigned to different users \cite{yousefi2016linear}. In this case using a rectangular filter to extract a
+single channel is not a good solution because part of the information can have leaked outside the filter bandwidth by phenomena such as \ac{FWM}. In order to preserve the orthogonality of the different channels in the \ac{NFT} sense, the only currently available possibility to demultiplex the channels is to demultiplex in the nonlinear domain. This requires to perform a joint \ac{NFT} of the signal corresponding to the whole linear spectrum and then extract the channel of interest. Clearly this approach is impractical given that it requires to process large chuncks of spectrum at once, similarly to the multi-channel \ac{DBP} technique.
+The problem of how to extract a single \ac{NFDM} channel in the optical domain is
+still open and probably the most important problem to solve to determine the
+success of \ac{NFDM} systems in the future.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. CLOCK RECOVERY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Clock recovery and frame synchronization}\label{sec:nfdm_clock_recovery}
+
+The \ac{NFDM} system transmits the data in blocks, so that proper frame synchronization is required in order to align the waveform corresponding to a single \ac{NFDM} symbol to the processing window of the receiver. A synchronization scheme for \ac{NFDM} could be realized  by inserting pilot symbols at regular intervals among the data frames, as it is commonly done in \ac{OFDM} \cite{qian2011101}.
+In this section we are not going to discuss the particular implementation of the frame synchronization algorithm, but rather discuss some peculiar effects that can be observed on the nonlinear spectrum in the presence of bad synchronization.
+
+One effect that can be seen when the signal is not properly synchronized,
+because it is retarder or advanced, is the shrinking and expansion, respectively, of the
+received $\nftb[][i]$ constellations. Indeed, considering the case of the
+fundamental soliton, we can see from
+\eqref{eq:relation_delay_discrete_amplitudes} that the absolute value of the
+scattering coefficient $\nftb[][i] = \dnft[i] \nftaderiv[i]$ is a nonlinear function of the delay $t_1$ of the signal.
+This effect can also be seen when a multi-eigenvalue
+signal is considered. The two $\nftb[][i]$  constellations in \figref{fig:constellation_shrinked_and_clock_error}~(a), corresponding to the two discrete eigenvalues $\{\eig[1]=\iunit0.3, \eig[2]=\iunit0.6\}$, shrink when the the signal has a synchronization error of 2.5\% of the symbol period \Ts{}, as shown in \figref{fig:constellation_shrinked_and_clock_error}~(b). This nonlinear scaling
+effect may not be particularly relevant when dealing with \ac{PSK} constellations, but
+can be problematic for multi-level constellations.
+
+\begin{extendedthesis}
+If the guardbands between symbols are small, part of the signal can leak outside the processing window causing errors in the computed spectrum.
+\end{extendedthesis}
+
+The relation of the constellation radii with the timing delay of the signal can also be used to reveal clock errors. If the clock of the transmitter \ac{DAC} and the receiver \ac{ADC} are not exactly the same, the \ac{NFDM} pulse slowly drifts within the processing window causing a slow scaling of the constellations over time. In \figref{fig:constellation_shrinked_and_clock_error}~(c) the constellations distorted by a clock error of \si{25} \ac{ppm} are shown, and the evolution over time of the real part of the constellations is shown in \figref{fig:constellation_shrinked_and_clock_error}~(d).
+
+\begin{extendedthesis}
+In the future, this effect can be possibly used as a way to perform timing correction for the \ac{NFT} signal, for example by relating the slope of the constellation radius over time to the clock error.
+\end{extendedthesis}
+
+%%%% .FIG. CONSTELLATION SYNC AND CLOCK %%%%
+\begin{figure}[tb]
+  %\centering
+  \raggedright
+  %\begin{subfigure}
+  \subtop[Ideal case]{
+        \includegraphics[height=.26\textwidth]{./img/const_eig1_ideal.pdf}
+        \includegraphics[height=.26\textwidth]{./img/const_eig2_ideal.pdf}
+        \label{subfig:syncnclock_ideal}
+    }
+    %\hfill
+    \subtop[Synchronization error (2.5\% of \Ts{})]{
+        \includegraphics[height=.26\textwidth]{./img/const_eig1_badsync.pdf}
+        \includegraphics[height=.26\textwidth]{./img/const_eig2_badsync.pdf}
+        \label{subfig:syncnclock_badsync}
+    }
+    \subtop[Clock error (\SI{2.5}{ppm})]{
+        \includegraphics[height=.26\textwidth]{./img/const_eig1_clock_25ps.pdf}
+        \includegraphics[height=.26\textwidth]{./img/const_eig2_clock_25ps.pdf}
+        \label{subfig:syncnclock_badclock}
+    }
+    %\hfill
+    \subtop[Clock error (\SI{2.5}{ppm})]{
+        \includegraphics[height=.26\textwidth]{./img/const_evolution_clock_25ps.pdf}
+        \label{subfig:syncnclock_badclock_evolution}
+    }
+
+  \caption{Effects of synchronization and clock errors in a 2-eigenvalues \ac{NFDM}
+           system with $\nftb[][i]$ constellations modulated with 16-\ac{QAM}.
+           The constellations associated to the two eigenvalues $\{\iunit0.3,\iunit0.6\}$ are shown in three cases:
+            \insetref{a} perfect frame synchronization and clock;
+           \insetref{b} fixed frame synchronization error of 2.5\% of the symbol period \Ts;
+           \insetref{c} \ac{ADC} clock error of 2.5 \ac{ppm}.
+           \insetref{d} Time evolution of the real part of the constellations for the third case}
+  \label{fig:constellation_shrinked_and_clock_error}
+\end{figure}
+
+% %%%% .FIG. TIMING ERROR %%%%
+% \begin{figure}[!t]
+%   \centering
+%   \includegraphics[width=.7\textwidth]{./img/timing_error.png}
+%   \caption{Expanding absolute value of the spectral amplitude due to timing error that slowly moves the signal away from the center of the processing window}
+%   \label{fig:clock_error}
+% \end{figure}
+
+
+\begin{extendedthesis}
+
+\subsection{Frequency recovery}
+We clearly need to compensate the \ac{LO} frequency offset at the receiver.
+
+\subsection{Resampling}
+Just in case. It is complicated because I need to read the papers from Sander.
+In short: The \ac{NFT} requires more samples than those required by the Nyquist theorem
+to perform the integration precisely, so upsampling may be beneficial.
+
+%%%% .FIG. RESAMPLING %%%%
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=.7\textwidth]{./img/resampling.png}
+  \caption{BER vs \ac{OSNR} for different resampling rates. Ignore the weird line}
+  \label{fig:timing_error}
+\end{figure}
+
+\end{extendedthesis}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. NFT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Computing the \ac{NFT}}\label{sec:nfdm_nft}
+Once the signal has been rescaled, filtered, and synchronized, it can  finally be fed into the \ac{NFT} block, which normalizes it using \eqref{eq:change_of_variables_NLSE} and computes the received \ac{NFDM}-symbol  $\matr{r} = \nfdmsymrx$ of each section of duration \Ts{} of the signal.
+
+\begin{extendedthesis}
+We should note that the normalization variable $P_0$ could be adjusted to perform the normalization of the signal acquired by the \ac{DAC} directly, making it possible to avoid the power rescaling of the
+signal that was performed at the beginning of the receiver \ac{DSP} chain.
+\end{extendedthesis}
+
+To operate the \ac{NFT} block needs to be able to compute the \scatcoef{} $\nfta$ and $\nftb$ at an arbitrary point $\eig$ (not necessarily an eigenvalue) in the upper half complex plane $\CC^+$. This can be done by using the equations \eqref{eq:scattering_coefficients}, here reported for convenience
+\begin{subequations}
+\begin{align}
+\nfta&=\lim_{t \to +\infty}\jostn[1]e^{i\eig[i] t}\\
+\nftb&=
+      \lim_{t \to +\infty}
+       \jostn[2] e^{-i\eig[i] t}.\label{eq:scattering_coefficients_b_ch3}
+\end{align}
+\end{subequations}
+The only unknown term in these equations is $\jostnshrt(+\infty, \eig)$, which can be calculated by propagating the Jost
+solution $\jostn$ from $t=-\infty$ to $t=+\infty$, as explained in Section~\ref{sec:direct_NFT_NLSE}. To perform this propagation
+the system of linear ordinary differential equations
+\eqref{eq:ZSP_time} needs to be integrated. This integration
+%, which is the most critical step in computing the direct NFT,
+can be performed using one of the many standard
+integration methods available in the literature, from the simple
+first-order Euler method,  to  more sophisticated methods, such as the
+fourth-order Runge-Kutta method, or the Ablowitz-Ladik discretization. A thorough
+overview of the numerical methods for computing the direct \ac{NFT} can be found in
+\cite{Yousefi2014a}. A method of particular interest for computing the
+scattering coefficients when the eigenvalues are complex is the trapezoidal
+discretization method. This was shown to be one of the algorithms that provides
+the best results in terms of numerical precision  when the eigenvalues are
+complex \cite{Aref2016c}. This algorithm will be presented in detail in
+Section~\ref{sec:numerical_methods} in the context of the dual polarization \ac{NFT}.
+
+By recalling the parallel between \ac{NFDM} and \ac{OFDM}, we know that the
+discrete eigenvalues of \ac{NFDM} plays the role of the linear frequencies of
+\ac{OFDM}. In the \ac{OFDM} case the receiver knows where the frequencies of the
+subcarriers are located, while the \ac{NFDM} receiver needs to determine the
+position of the eigenvalues from the received time domain signal.
+
+For this reason the \ac{NFT} block determines the discrete spectrum of the signal in two steps:
+first it locates the discrete eigenvalues $\{\eigest[1], \dots, \eigest [N]\}$, and
+then it computes the corresponding scattering coefficients $\{\nftbest[][1], \dots, \nftbest[][N]\}$.
+
+By recalling that the discrete eigenvalues are located at the zeros of the
+function $\nfta$ over the upper half complex plane, we can employ standard root
+searching methods, such as the Newton-Raphson method to find them
+\cite{Yousefi2014a}. This method starts from an initial guess of the root
+$\eig^{(0)}$, computes $\nfta[0]$ by solving the \ac{ZSP} for $\eig^{(0)}$, and checks if the value of $a(\eig^{(0)})$ found is zero; if this is the case, it means that $\eig^{(0)}$ is an eigenvalue and the algorithm stops, otherwise the guess is updated according to the rule
+\begin{equation}
+  \eig^{(k+1)} = \eig^{(k)} - \epsilon\dfrac{a(\eig^{(k)})}{a'(\eig^{(k)})}
+\end{equation}
+where $\epsilon$ is the step modifier, and the procedure is repeated. This method is well suited for the discrete \ac{NFDM} system for two reasons: the number of transmitted eigenvalues is fixed for each symbol, and the reference location of the eigenvalues is known to the receiver, so that they can be used to initialize the algorithm. Other methods, such as the Fourier collocation method \cite{Yousefi2014a} can also be used to locate the eigenvalues. Both these methods may not be totally accurate in locating the eigenvalues when the processed signal is distorted by the channel impairments. It can happen that not all the eigenvalues are located, or that new spurious eigenvalues are found.
+%In the next section a discussion on how this events can be managed is given.
+
+Once all the $N$ eigenvalues have been located, where possible, the corresponding scattering coefficients $b(\eigest[i])$ can be computed using \eqref{eq:scattering_coefficients_b_ch3}.
+
+The last operation performed by the \ac{NFT} block is to apply the inverse transfer function of the channel $H(\eig[i], \fiberl) = \nftInvH[i][\fiberl / \nftcvL]$ to $b(\eigest[i])$ to compensate the phase shift introduced by the propagation in the nonlinear channel as follows
+\begin{equation}\label{eq:apply_inverse_transfer_function}
+ \nftbest[][i] = \nftInvH[i][\fiberl / \nftcvL]b(\eigest[i]).
+\end{equation}
+
+Finally, the received \ac{NFDM}-symbol  $\matr{r} = \nfdmsymrx$ is passed forward to the next block of the \ac{DSP} chain, which performs further processing in the nonlinear domain, before the symbol decisor retrieves the data bits.
+
+\begin{extendedthesis}
+
+\subsection{Equalization}
+Parlare di lavori in letteratura.
+
+\end{extendedthesis}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. PHASE ESTIMATION%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Phase estimation}\label{sec:nfdm_phase_estimation}
+In standard coherent systems, carrier phase estimation is necessary to compensate for the rotation of the received constellation. This rotation is caused by the random frequency and phase oscillations of the carrier of the transmitted optical signal and of the \ac{LO} of the coherent receiver.
+In a \ac{NFDM} system the same rotation effect of the received  $\nftb[][i]$ constellations can be observed, and needs to be compensated for.
+
+If we consider again the signal-nonlinear spectrum relation for the fundamental soliton case given in  \eqref{eq:spectrum_signal_relation}, we can see that the phase of the time domain signal is proportional to the phase of $\dnft[i]$ (and so to the one of $\nftb[][i]$). This means that the phase noise affecting the signal translates to a phase noise on the $\nftb[][i]$ symbols. In the \ac{NFDM} case though, the time domain phase noise has also an impact on the amplitude  of the $\nftb[][i]$ symbols \cite{gui2016phase}, and the phase noise on $\nftb[][i]$ depends also on the noise on the eigenvalues $\eig[i]$ \cite{bulow2016experimental}.
+% A further component of phase noise can arise when the received $\nftb[][i]$ symbol is multiplied by the inverse transfer function of the channel as in  \eqref{eq:apply_inverse_transfer_function}, which depends on the received noisy eigenvalue $\eig[i]$.
+
+To estimate the phase of the received $\nftb[][i]$ symbols, standard algorithms such as Viterbi-Viterbi \cite{viterbi2010nonlinear}, or \ac{BPS} \cite{pfau2009hardware} have been proven to work when applied directly over the nonlinear domain constellation for the single eigenvalue case \cite{gui2016phase}. In our work \cite{GaiarinECOC17} we also used blind phase search successfully when multiple eigenvalues are present in the nonlinear spectrum. Nonetheless, the optimality of these algorithms for the \ac{NFDM} system has not been demonstrated.
+To further reduce the phase noise, novel equalization techniques in the nonlinear domain have also been proposed \cite{aref2016spectral, HongKong}.
+
+\begin{extendedthesis}
+In case an eigenvalue is missing we said in the previous chapter that we need to
+fill the corresponding spectral amplitude with a dummy value. If we pick a value
+from the reference constellation, this creates a phase jump in the sequence
+of symbols, which may impair the performance of the phase tracker algorithm. For
+this reason, our implementation use the spectral amplitude computed for the
+previous \ac{NFDM} symbol, in order to minimize the possible phase jump due to the
+use of the dummy value.
+\end{extendedthesis}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. SYMBOL DECISION%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Symbol decisor}\label{sec:nfdm_symbol_decision}
+The symbol decisor estimates what symbol $\matr{s}_m = \nfdmsymtx{}$ was transmitted among the possible \ac{NFDM}-symbols $\{\matr{s}_m, 1 < m < M^N\}$, where $M$ is the constellation order and $N$ the number of eigenvalues, based on the received \ac{NFDM}-symbol  $\matr{r} = \nfdmsymrx{}$.
+
+The transmitted and received symbols are related by the transitional probability function of the channel $p(\matr{r}|\matr{s}_m)$ \cite{proakisdigital}. When the transmitted symbols are equiprobable, the optimal decision strategy is the \ac{ML} rule, defined as
+\begin{equation}\label{eq:mindist_decision_rule}
+  \widehat{m} = \argmax_{1 < m < M^N} p(\matr{r}|\matr{s}_m).
+\end{equation}
+However, this detection scheme may be extremely complex to implement practically.
+% WHY??
+% Here we consider a simple detection scheme where the decision is performed independently on each $\nftb[][i], i = 1, \dots, M$. In this case the complex plane where the $i-th$ component of the \ac{NFDM}-symbol $\nftb[][i]$ lies is partitioned in $M$ regions $D_1, \dots, D_M$
+In the works presented in this thesis, a simpler detection scheme has been used. This scheme performs the decision independently on each $\nftb[][i], i = 1, \dots, N$ based on the minimum Euclidean distance criterion
+\begin{equation}
+  \widehat{m}' = \argmin_{1 < m' < M} d(\nftb[r][i], \nftb[m'][i])
+\end{equation}
+where $d(\cdot, \cdot)$ is the Euclidean distance in $\CC$, and $C_{r,i} = \{\nftb[m'][i]\}, 1 < m' < M$ is the reference constellation for the $i$-th scattering coefficient. This rule is similar to the decision process used in \ac{OFDM} systems.
+However, in the \ac{NFDM} case some new problems that can arise need to be taken into account.
+
+The first problem is that, as a consequence of the joint presence of the noise
+and of the fiber loss, some of the discrete eigenvalues can vanish, and some
+spurious one may appear.
+%, and some can split into separate clusters.
+A second
+problem is that the \ac{NFDM} receiver do not locate the eigenvalues following a
+specific order. This makes it difficult to associate each scattering coefficient
+$\nftb[][i]$ to its reference constellation, in order to take the
+decision. For example, this can happen when the Newton-Raphson method is used with
+an initial guess picked at random over a complex plane region surrounding the
+reference eigenvalues.
+To give an example of this problem, let us consider a 2-eigenvalue \ac{NFDM} system with two eigenvalues, and $\nftb[][i]$ scattering coefficients drawn from a \ac{QPSK} constellation
+rotated by $\pi/4$ for $i=1$, and from a \ac{QPSK} for $i=2$.
+An example of received \ac{NFDM}-symbol (eigenvalues and \scatcoef{})
+ is shown in \figurename~\ref{fig:mixed_eigen}~(a). The leftmost inset shows the detected eigenvalues: the first located one
+is depicted in red, while the second one in blue. The $\nftb[][i]$  constellations associated to the first and second located
+eigenvalue are shown in the following two insets. We can clearly see that there is a mixing of the two $\nftb[][i]$ constellations. Given that the
+reference constellations for $\nftb[][1]$ and $\nftb[][2]$ are different, it is
+necessary to properly sort the $\nftb[][i]$ to assign them to the correct
+reference constellation before taking the decision.
+
+%%%% .FIG. MIXED EIGEN %%%%
+\begin{figure}[t]
+  \centering
+  \subtop[Mixed eigenvalues]{
+        \includegraphics[height=.255\textwidth]{./img/const_eig_decisor_scrambled}
+
+        \includegraphics[height=.255\textwidth]{./img/const_spamp_decisor_scrambled_1}
+        \includegraphics[height=.255\textwidth]{./img/const_spamp_decisor_scrambled_2}
+        \label{subfig:const_decisor_scrambled}
+    }
+  \subtop[Sorted eigenvalues]{
+        \includegraphics[height=.255\textwidth]{./img/const_eig_decisor_sorted}
+        \label{twoFigures1}
+
+        \includegraphics[height=.255\textwidth]{./img/const_spamp_decisor_sorted_1}
+        \includegraphics[height=.255\textwidth]{./img/const_spamp_decisor_sorted_2}
+        \label{subfig:const_decisor_sorted}
+    }
+
+
+
+  %\includegraphics[width=\textwidth]{./img/drafts/bad_eigen_constellation.png}
+   %\includegraphics[width=\textwidth]{./img/mixed_eigen.png}
+  \caption{\insetref{a} Eigenvalue constellation: first (red) and second (blue) detected eigenvalue for each \ac{NFDM}-symbol, and respective $\nftb[][i], i=1,2$ scattering coefficients. \insetref{b} The same constellations after a decision has been taken on the eigenvalues, and both the eigenvalues and the scattering coefficients has been sorted}
+  \label{fig:mixed_eigen}
+\end{figure}
+
+To this end the proposed symbol decisor works as follows:
+first the minimum distance from all the detected eigenvalues is computed against
+each of the reference eigenvalues, then, starting from the first reference
+eigenvalue, the detected eigenvalue with the minimum distance to it is picked, and
+it is removed from the set of detected eigenvalues. After this, the process is repeated for the remaining reference and detected eigenvalues. The process terminates when the $N$-th reference eigenvalue has been processed, or when the detected eigenvalues set is empty. Note that two
+detected eigenvalues may be both closer to the same reference one, but using the
+previous algorithm they can be associated to two different reference
+eigenvalues. This is done because the \ac{NFDM} receiver always expect to receive $N$
+eigenvalues, no more no less.
+
+Once the decision has been taken over the eigenvalue space, the $\nftb[][i]$ can be associated to their reference constellations based on this decision. If the number of detected eigenvalues is less then $N$, the $\nftb[][i]$ associated to the missing eigenvalues are filled with a random value drawn from the respective reference constellations. At this point the decision can be taken according to the rule in \eqref{eq:mindist_decision_rule}.
+In \figref{fig:mixed_eigen}(b) we can see the received eigenvalues and constellations after being sorted by the decisor block.
+
+This decision method is only an example that can be used to deal with some of the particular problems of the \ac{NFDM} system, but more advanced decision techniques should be investigated to optimize the \ac{BER} performance of this type of systems.
+
+\begin{extendedthesis}
+ Another problem we have not managed yet, is when we detect less eigenvalues
+than the number of reference one. In this case what we do is to fill the missing
+spectral amplitude with a dummy value that can be picked from the reference
+constellation or picked in a more advance way (see next section on phase
+tracking). In this way we have a probability over 1/M to guess the correct
+symbol.
+\end{extendedthesis}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%% .SUBSEC. SMMARY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+In this chapter the structure of a discrete \ac{NFDM} system has been described.
+In the first part the different components of the transmitter have been presented, and the design of the nonlinear spectrum constellation has been discussed It was mentioned how the placement of the eigenvalues and the choice of the $\nftb[][i]$ constellations are critical aspects of the system.
+In the second part of the chapter the components of the receiver have been described, discussing the peculiar effects on the received constellations arising from the synchronization problems, and the particular design of the symbol decisor for discrete \ac{NFDM} system.
+The operations of normalization and denormalization have also been discussed, and the effects on the \ac{BER} performance of the system when the signal power is not correctly rescaled at the receiver have been analyzed with numerical simulations.
+This chapter only touched the issues of this type of systems, in the hope to give the reader a grasp of how \ac{NFDM} system are different from standard linear coherent systems.
+
+

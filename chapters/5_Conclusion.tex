@@ -1,0 +1,82 @@
+\chapter{Conclusion}\label{ch:conclusion}
+
+The increasing global data traffic is currently pushing linear \ac{SMF} coherent optical communication systems to their limits. Communication technologies based on the \ac{NFT} have recently emerged as possible candidates to tackle the nonlinearity problem by designing systems that integrate the nonlinearities in their operation.
+
+This thesis presented a review of the \ac{NFDM} modulation scheme based on the \ac{NFT} and extended it to the dual polarization case. Both the  mathematical tools necessary to define \ac{DP-NFDM} and a practical experimental demonstration of transmission have been given.
+These results could allow doubling the transmission rate of \ac{NFDM} systems, and thus are a key step in the advance of this technology.
+
+A summary of the results and an outlook on the possible future research directions are given in the following sections.
+
+\section{Summary}
+
+Chapter~\ref{ch:fundamentals} reviewed the inverse scattering method based on
+the ideal channel model given by the integrable \ac{NLSE}. Given the limited
+ability of the \ac{NLSE} to model real \acp{SMF}, the generalized \ac{NLSE} that
+accounts for fiber loss and noise has also been introduced. A numerical analysis
+of the behavior of the \ac{NFT} continuous spectrum over this non-integrable channel
+has been done to investigate the impact of the two non-ideal terms. The analysis
+compared the amount of distorsion, in terms of \ac{NMSE}, of the \ac{NFT} continuous spectrum to that of the
+linear Fourier spectrum of a Gaussian pulse. The results
+have shown that the \ac{NFT} continuous spectrum is distorted by nonlinearities as
+the launch power is increased, as opposed to the case where the cahnnel is modeled by the integrable \ac{NLSE}.
+Nonetheless, when compared to the Fourier spectrum, the \ac{NFT} continuous spectrum was less distorted in terms of the measured \ac{NMSE} between input and output spectra. This was indeed 2.85 times lower for the \ac{NFT} the at the optimal launched power, which was \SI{3}{\dB} higher than the one of the linear Fourier spectrum. This shows that the \ac{NFT} can be used over channels that do not satisfy
+all the conditions of the integrable \ac{NLSE} still providing advantages over
+linear communication schemes employing the linear spectrum of the signal.
+
+Chapter~\ref{ch:discrete_NFDM_system} described in detail an \ac{NFDM} system using
+the discrete nonlinear spectrum for encoding information. The aim was to give an
+overview of the properties of such a system, based on the state-of-the-art
+literature. For each \ac{DSP} block of the \ac{NFDM} transceiver, the particular design
+challenges were discussed. Among the topics mentioned, the design of the
+nonlinear spectrum constellations is an interesting open problem. Some examples
+of optimization of the constellations to minimize the \ac{PAPR} and duration of
+the time domain signal have been given. Then, the signal amplitude rescaling  operation of
+the signal at the receiver was described. The impact of the power offset on the
+BER performance of the system was evaluated through numerical simulations.
+It was shown that in the presence of noise the optimal rescaling power do not
+match with the theoretical one. In the specific case considered of a 2-eigenvalue \ac{NFDM} system, it was possible to obtain a gain in \ac{OSNR} of \SI{1.5}{\dB} by adding a numerically optimized offset to the rescaling power. Finally, the specific implementation of the
+symbol decisor used in this thesis was described. The decisor accounts for the
+effects peculiar to the discrete \ac{NFDM} system, such as the disappearance of
+some eigenvalues and the problem of sorting the $\nftb[][i]$ scattering coefficients
+to match them to the correct reference constellations. The Chapter
+covered some of the main design aspects of an \ac{NFDM} system, giving the reader an overview of this technology, and showing the differences
+with respect a standard linear coherent system.
+
+Chapter~\ref{ch:dual_pol_nfdm} presented the novel concept of \ac{DP-NFDM}. At first
+the mathematical theory of the inverse scattering for solving the \ac{MS} was
+revised. This theory defines the forward and inverse \ac{NFT} transformations that
+can be used to encode  and decode data in the nonlinear spectrum. The structure
+of a \ac{DP-NFDM} was described for a specific system employing two discrete
+eigenvalues and \ac{QPSK} modulated $\nftb[][i]$ scattering coefficients. Following
+the discussion on the design of the constellations in
+Chapter~\ref{ch:discrete_NFDM_system}, the constellations of this system were
+designed to reduce  the \ac{PAPR} of the time domain signal of the system, which was
+found a limiting factor of the \ac{BER} performance. Through the optimization procedure used, the \ac{PAPR} was reduced by \SI{2.35}{\dB}. The proposed \ac{DP-NFDM} system was
+then demonstrated experimentally for the first time. It was possible to transmit
+\SI{8}{Gb\per\s} up to \SI{373.5}{km} with \ac{BER} lower than the \ac{HD-FEC} threshold. Although more research work needs to be
+done in this direction, by demonstrating the possibility of using dual
+polarization \ac{NFT}-based channels, this thesis successfully met one of the
+key challenges that were explicitly highlighted in a recent review of this
+research field~\cite{Turitsyn2017} as necessary steps in order to bring
+eigenvalue communication from a pioneering stage to be a working infrastructure
+for optical communications in the real world. Furthermore, the demonstration of
+the polarization division multiplexing is a significant step forward towards a
+fair comparison of the \ac{NFT}-based channels with the currently used linear
+ones where polarization division multiplexing is an established practice.
+
+\section{Outlook}
+
+The results presented in this thesis demonstrated the feasibility of dual polarization \ac{NFT}-based communication, which enables exploiting the second polarization supported by the \acp{SMF}.
+Although this is a significant step forward in the evolution of \ac{NFT}-based optical communication systems that can potentially double the transmission rate, the throughput and the spectral efficiencies  of the demonstrated system were very limited.
+
+A short term research may first address some of the limitations of the presented system. For example, the lack of \ac{DSP} algorithms to  track the state of polarization of the two components of the optical signal is a critical missing building block that needs to be implemented to make the system complete.
+% An proposal of  algorithm based on training sequences was done  in \cite{Goossens:17} for the case where only the continuous spectrum is modulated. This algorithm can be adapted to the case of discrete or complete nonlinear spectrum. Further the investigation of blind algorithms is also an interesting line of research.
+Moreover, the demostrated system was limited in the modulation of only the discrete nonlinear spectrum. To benefit from all the degrees of freedom of the nonlinear spectrum, the \ac{DP-NFDM} needs to be equipped with a transformation able to generate a time domain signal from an arbitrary spectrum. This is likely possible by combining the \ac{DT} with the \ac{INFT} for the continuos spectrum, recently proposed in \cite{Goossens:17,} similarly to what has been done for the single polarization case in \cite{aref2016demonstration}.
+Investigations of the impact of the \ac{PMD} on the performance of the \ac{DP-NFDM} systems are also necessary to verify that this is not a limiting factor.
+
+On a longer term, one of the crucial problem of \ac{NFDM} systems, which is still unanswered, is to demonstrate the possiblity of creating a nonlinear \ac{ADM} able to extract an \ac{NFDM} channel without altering the nonlinear spectrum of the neighboring channels. As for now this is only possible by digitally demodulating and remodulating  the nonlinear spectrum, which unfortunately does not seem anywhere near a practical solution given the limited speed of the electronics components.
+Moreover, further fundamental models that describes the impact of the fiber loss and the noise, which makes the Manakov system not integrable, on the evolution of the nonlinear spectrum are essential in order to properly design \ac{DP-NFDM} receivers able to mitigate the impact of these non-ideal effects.
+
+Despite the potentiality of \ac{DP-NFDM} to be a technology that can offer advantages in terms of nonlinearity resilience,
+solutions to the problems mentioned above need to be found before it can compete with the technologically mature linear coherent systems.
+

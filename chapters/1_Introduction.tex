@@ -1,0 +1,192 @@
+%!TEX root = ../Thesis.tex
+\chapter{Introduction}\label{ch:introduction}
+
+In the mid 90s the wide-spreading of the world wide web made the Internet go
+from being a technology used only by researchers and technology enthusiasts to
+become the commodity central to everyone's life we know today. This global
+network for exchanging information in real time radically changed the way we do
+business, access the news and communicate among ourselves, thus shaping the
+modern information society. If at first it was only possible to access simple
+static web pages, in a matter of two decades a multitude of services such as
+e-mail, e-commerce, social networks, cloud computing and video streaming
+services are provided via the Internet. In the near future the Internet is
+expected to become even more pervasive with the advent of the Internet of
+Things. This rapid increment of the number of bandwidth-demanding services
+together with the increasing number of worldwide connected devices  will cause
+the global data traffic to grow at a compound annual growth rate of 24\% in the
+period 2016-2021, making the global IP traffic reach \SI{278}{\exa\byte} per
+month in 2021~\cite{cisco2017cisco}.
+
+This impressive amount of information flow is only possible thanks to the
+fiber-optic network that constitutes the core of the Internet.  The enormous
+bandwidth of the optical fibers together with their low transmission losses
+makes it possible to transmit massive quantities of data over long distances, otherwise impossible with previously existing technologies such as coaxial
+cables or wireless systems.
+
+The transmission throughput of the optical fibers has increased exponentially over
+the years from the 70s to the present days~\cite{agrawal2012fiber}. This was
+possible thanks to refinement of the existing electrical and optical components
+constituting the optical transmission systems, and to the introduction of new
+disruptive technologies such as the \ac{EDFA} and the \ac{DCF} that enabled the
+deployment of long-haul direct-detected unregenerated \ac{WDM} systems. Once the
+information rate could not be increased anymore by using more bandwidth, due to
+the limited amplification window offered by the \acp{EDFA}, the next direction
+was to increase the spectral efficiency, i.e., encoding more bits in the same
+bandwidth, by using advanced modulation formats~\cite{seimetz2009high}. Around
+the beginning of 2010, \ac{SMF} optical transmission systems using coherent detection,
+multi-level modulation formats, and \ac{DSP} algorithms, used to compensate for linear impairments such as chromatic dispersion and \ac{PMD}, started
+to be deployed~\cite{coherent2013ciena}.  They constitutes the current
+generation of optical transmission systems~\cite{Agrell2016a}.
+Unfortunately not even these type of systems will be able to satisfy the continuous demand
+of transmission rate in the near future.
+
+The main problem of these systems is that they are based on technologies
+originally developed for a linear channel
+with \ac{AWGN}. The capacity of such a channel increases indefinitely with the
+bandwidth and launch power of the signal~\cite{shannon1948mathematical}. Given a
+fixed bandwidth, the transmission rate of the system can be increased by using
+symbol constellations with higher order.  Larger constellations need larger power to maintain the \ac{OSNR} at a level that allows recovering the transmitted information. However, the fiber-optic channel is
+inherently nonlinear due to the Kerr effect~\cite{Agrawal12_NonlinearFOs_Book}.
+The nonlinearity of the fiber causes a distortion of  the signal, called
+nonlinear interference, proportional to the cube of the power of the
+signal itself \cite{poggiolini2012gn}, which contributes in decreasing the \ac{SNR} at the
+receiver of current coherent optical transmission systems. The received  \ac{SNR} is
+dominated by the \ac{ASE} noise of the amplifiers at low powers and by the
+nonlinear interference at high powers, so that an optimal launch power that
+maximize the transmission rate of the system exists in between these two power
+regimes~\cite{Mitra, Essiambre, mecozzi2012nonlinear}. This condition imposes a practical limit in the achievable transmission rate of the system.
+
+The nonlinearity of the fiber is the current bottleneck on the performance of  the currently deployed coherent optical systems, and for this reason a lot of effort has been put in trying to
+compensate this detrimental effect.
+To solve this problem the research community has tried to mitigate the impact of nonlinearity through a wealth of techniques in the digital and optical domain.
+
+The reference method for nonlinearity mitigation in the digital domain is
+\ac{DBP}~\cite{Ip,dar2017nonlinear}. \ac{DBP} is a technique to compensate  the
+deterministic effect of the fiber nonlinearity by propagating the received signal
+backward in a digital channel. This channel is modeled by the \ac{NLSE} and represents the nonlinear fiber-optic transmission channel.
+% in order to recover the transmitted signal.
+% The backpropagation of the signal can be achieved by solving the \ac{NLSE}
+% that models the nonlinear fiber channel using the \ac{SSFM}.
+% This method divides the length of the fiber in several steps and
+% computes the solution step after step by solving the linear and nonlinear part
+% of the differential equation separately. If the discretization step is small
+% enough the computed solution converges to the real solution of the equation.
+The main drawback of this method is its high complexity arising from the
+necessity of finely partitioning the fiber in small sections along its length, and repeating the operations
+to solve the differential equation for each section. The complexity of this
+method scales with both the power of the signal and the transmission length,
+making it very unpractical for long haul systems. Moreover, to perform optimally, \ac{DBP} needs to process the channel of interest together with all the interfering channels, thus imposing a high requirement on the electrical bandwidth of the receiver.
+
+In order to avoid the need of large electrical bandwidth and high computational
+power, many optical nonlinearity compensation techniques have been proposed, such
+as \ac{OPC}~\cite{sackey2015kerr,Ellis:16} or phase-conjugated twin-waves
+transmission~\cite{liu2015twin}. Although these techniques are particularly appealing
+because they can be applied to multiple channels of a \ac{WDM} system at once,
+they come with their own specific problems, such as requirements on the link symmetry, reduced spectral efficiency, etc.
+
+Alternatively to increase the transmission rate of the systems by increasing
+the launch power, with the necessity of compensating for the fiber nonlinearity
+effect, a different approach is to increase the data rate by using multi core
+or multi mode fibers. Using these fibers it is possible to encode more data in their multiple spatial degrees of
+freedom~\cite{richardson2013space, puttnam20152, yi2018transmission}. This umbrella of techniques is called \ac{SDM}.
+\ac{SDM} would allow to obtain high data rates even when the system is operated
+in the linear power regime where the impact of the fiber nonlinearity is negligible.
+However, the adoption of \ac{SDM} would require installing a completely new
+fiber infrastructure, which is very complex, time consuming, and costly. Moreover,
+due to the complicated mode-coupling and inter-core cross talks, in order to
+descramble the data, it is often required to use electronic \ac{DSP} techniques that can have proibitive computational power requirements
+%comparable or higher to that of \ac{DSP}-based nonlinear mitigation techniques
+~\cite{richardson2013space}.
+% Finally, as the Kerr nonlinearity is a fundamental property of the material used
+% to make optical fibers, systems employing multiple cores or modes would also
+% eventually become limited. Therefore, by employing the systems relying on
+% multiple modes or cores for the signal transmission will result in postponing
+% the problem of optical fibre nonlinearity instead of solving it.
+% [Possibly not true, see Antonelli OFC2015, in multimode with strong coupling,
+% the effect of FWM and XPM may disappear].
+
+The approaches presented so far treats the the nonlinearity as an impairment of the system and try to mitigate its effect without considering the underlying problem that the transmission system is designed for a linear channel. An alternative approach is to account for the nonlinear nature of the channel and to design a system tailored for this channel.
+
+The idea of including the nonlinear effect of the fiber into the design of an
+optical communication system  was introduced with the soliton communication
+~\cite{hasegawa1973transmission,nakazawa199110,mollenauer1988demonstration}.
+Indeed, by properly carving the envelope of the transmitted signal,
+it is possible to make the resulting pulse maintain its shape along the propagation in the
+nonlinear fiber thanks to a perfect balance between  chromatic
+dispersion and  Kerr nonlinearity. In this sense the two effects,
+considered a limit to the system when acting independently, become a
+constitutive elements of the system.
+
+From the idea of soliton communication, Hasegawa and Nyu~\cite{Hasegawa} proposed the concept of \emph{eigenvalue communication}, by noting that, associated to the solitons, there is a set of parameters, called eigenvalues, that do not change during the transmission of the optical signal in the fiber. Soliton communication
+can be considered a particular case of eigenvalue communication where a single eigenvalue is used to carry information. In the general case multiple eigenvalues can be modulated at once in order to encode more information bits per pulse.
+
+Eigenvalue communication exploits the exact integrability of the \ac{NLSE} through the \ac{IST}~\cite{ablowitz1974inverse}, also called \ac{NFT}, as the master evolution equation of the electric field propagating in \ac{SMF}. The integrable \ac{NLSE} accounts only for the first order dispersion and the \ac{SPM} effect, disregarding all other effects, such as
+attenuation, higher-order dispersion, \ac{FWM}, Raman effect, and noise. For this reason, this model is only partially able to model the evolution of a signal in a real fiber-channel where these effects are present.
+Integrability of the \ac{NLSE} was demonstrated by Zakharov and Shabat back in 1972~\cite{shabat1972exact}, when they found a spectral problem associated to the \ac{NLSE} related to a set of ordinary linear differential equations.
+Following this approach, it is possible to identify the eigenvalues, that can be considered the analogous of the frequencies in the classical Fourier transform, and the so called \textit{scattering coefficients}: complex amplitudes associated to the eigenvalues.
+The nonlinear Fourier spectrum of a signal consists of a set of eigenvalues and the respective associated scattering coefficients $\{\eig, S(\eig)\}$.
+The eigenvalues belong either to a \emph{discrete spectrum} or to a \emph{continuous spectrum}; the first describes the solitonic components of the signal, while the second is associated with dispersive waves.
+
+The transmission of solitons, and thereby eigenvalue communication, lost the attention of the research community in the late 1990s due to effects such as to soliton-to-soliton collisions, inter-channel cross-talk and Gordon-Haus jitter \cite{hasegawa2003optical} that made those type of systems not competitive with existing \ac{WDM} systems.
+With the return of coherent detection, supported by the advanced \ac{DSP} for signal modulation and demodulation, the situation is completely different now. The ability to manipulate signals in the digital domain at the transmitter and receiver is opening up new opportunities for equalization strategies. It also allows the modulation of not only the eigenvalues but also the amplitude and the phase of the associated scattering coefficients, to enhance the overall spectral efficiency. This has resulted in a renewed interest in eigenvalue communication~\cite{prilepsky2013nonlinear, terauchi2013eigenvalue, Yousefi2014}, which, with various modifications, is now growing as a new paradigm in optical communications~\cite{Turitsyn2017}.
+
+Some of the recent publications, re-proposed the modulation method based on the
+original eigenvalue communication idea proposed in \cite{Hasegawa} where only
+the position of the eigenvalues is modulated \cite{terauchi2013eigenvalue,
+dong2015nonlinear,gui2015impact,hari2016multieigenvalue,aref2016designaspects}.
+Beside this technique, new methods of using the \textit{nonlinear spectrum} have
+emerged. A first one, often called \ac{NFDM} for its similarity with the
+classical \ac{OFDM}, is based on the modulation of the amplitude
+and phase of the complex amplitudes associated to the eigenvalues. This method
+can use the  continuous spectrum
+\cite{le201764,Tavakkolnia:17,yangzhang2017nonlinear}, the discrete spectrum
+\cite{Aref3,buelow2016transmission,gui2016phase,hari2016bi,
+geisler2016experimental} or both together
+\cite{tavakkolnia2015signalling,aref2016demonstration,le2017high}. \ac{NFDM}
+systems underwent a rapid progress, going from systems using only two eigenvalues and transmission rate of \SI{4}{\giga\bit\per\second} \cite{Aref3} to systems using both continuous and discrete spectrum with throughput of \SI{65}{\giga\bit\per\second}, and able to outperform \ac{OFDM}  in terms on nonlinearity tolerance \cite{Le2017}. The  current record transmission rate for \ac{NFDM} is of \SI{125}{\giga\byte\per\second} with  spectral efficiencies of \SI{2.3}{\bit/\second/\hertz} and transmission distance of almost \SI{1000}{km} using the continuous spectrum \cite{le2017high} .
+
+An alternative modulation method, called \ac{NIS}, instead of encoding the data bits on the nonlinear spectrum directly, uses the \ac{NFT} as an extra \ac{DSP} layer on top of  classical \ac{OFDM} systems. This technique econdes the linear Fourier spectrum resulting from the \ac{OFDM} modulation on the \ac{NFT} continuous spectrum in order to transmit it over the fiber with a lower impact of the fiber nonlinearity \cite{Prilepsky,Le,le2015nonlinear}. Recent works using the \ac{NIS} approach also showed impressive results, allowing to reach transoceanic transmission distances up to \SI{7344}{km} \cite{Le}.
+%and spectral efficiencies up to \cite{le2016achievable}.
+
+Beside using the nonlinear spectrum as a carrier of information, the \ac{NFT} can also be used only as a tool to remove the effect of nonlinearity on signals transmitted with classical modulation formats by using an approach similar to \ac{DBP}. For this reason this method has been named \ac{NFT}-\ac{DBP} \cite{turitsyna2013digital,wahls2015digital}. Unfortunately this approach present some challenges, as the difficulty in locating an unknown number of discrete eigenvalues, that makes it difficult to use it in practical communication scenarios, especially in the power regime where the effect of nonlinearity is relevant.
+
+Other recent research highlights have focused on building more practical  \ac{NFT}-based systems with the implementation of fast direct and inverse \ac{NFT} algorithms with real-time implementation in mind \cite{wahls2016fiber}, and with the investigation of the \ac{NFT} with periodic boundaries conditions, which would allow to minimize the processing window of the signal at the receiver \cite{kamalian2016periodic, kamalian2016periodic_a,kamalian2016periodic_b}. Theoretical works have been done to
+characterize the noise behavior on the nonlinear spectrum \cite{Zhang2,wahls2017second,HongKong,civelli2017noise} and
+to estimate the capacity or bounds on the capacity for \ac{NFT}-based communication systems  \cite{derevyanko2016capacity,tavakkolnia2017capacity,zhang2016achievable,shevchenko2015lower,yousefi2015upper}.
+Finally, the \ac{NFT} has recently also been used outside the communication scenario to perform identification of lasing regimes in mode-locked lasers \cite{sugavanam2017experimentally}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% .SEC. MOTIVATION %&%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Motivation and outline of contributions}
+
+This Ph.D. work is part of the Marie Curie initial training network project Allied Initiative for Training and Education in Coherent Optical Network
+(ICONE) grant 608099. The main goal of the project is the design of next generation high capacity high order
+constellations coherent optical transmission systems using \ac{DSP}, where fiber
+nonlinearities may then be a strongly limiting design factor.
+
+Among the different directions undertook in ICONE to try to overcome the nonlinearity problem and increase the capacity of next generation coherent system, this Ph.D. project has focused on \ac{NFT}-based transmission techniques,
+given their potential of avoiding the nonlinear cross-talk among different transmission channels caused by the fiber nonlinearities.
+
+During the past three years this type of communication method underwent a rapid development, going from a mere proof of concept to be used in systems able to transmit hundreds of \si{Gb/s} of information. Nonetheless all the experimentally demonstrated systems remained limited in modulating only one polarization component of the transmitted light thus not exploiting the full capacity of the \ac{SMF}. Only two theoretical works started exploring this topic very recently~\cite{Maruta,Goossens:17}.
+
+The main contribution of this thesis is the presentation of a full mathematical framework for designing a dual polarization \ac{NFT}-based optical transmission system employing the discrete nonlinear spectrum and the first experimental demonstration of such a system.
+The technique enables to use the second polarization supported by \acp{SMF} in order to potentially doubling the transmission rate, making a significant step forward in the evolution of eigenvalue communication. In addition this thesis provides an overview on the structure and on some of the design aspects of a discrete \ac{NFDM} system.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%% .SEC. STRUCTURE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Structure of the thesis}
+
+This thesis is divided in four chapters.
+
+Chapter~\ref{ch:fundamentals} provides the fundamental notions necessary to define an \ac{NFDM} communication system. The structure of a coherent
+optical communication system, and the model of an ideal channel based on the \ac{NLSE} are presented. Then the inverse scattering method based on this channel is introduced and the key concepts of nonlinear spectrum and linear evolution in the nonlinear domain are presented. Finally a generalized channel model that takes into account fiber losses and noise is also presented together with a numerical investigation of the effects of these non-ideal conditions on the evolution of the nonlinear spectrum.
+
+Chapter~\ref{ch:discrete_NFDM_system} provides a full description of an \ac{NFDM} optical communication system employing the discrete nonlinear spectrum as information carrier. The design aspects characteristic of \ac{NFDM} for the transmitter and the receiver are discussed based on the recent literature on the subject, and results from numerical simulations are shown to provide a better understanding of some particular problems of this type of systems.
+
+Chapter~\ref{ch:dual_pol_nfdm} introduces the novel concept of \ac{DP-NFDM} communication system. The mathematical framework that defines the dual polarization \ac{NFT} is presented, and the numerical methods to compute the direct and inverse transformation in the dual polarizaton case are introduced for the case of discrete nonlinear spectrum. Then the structure of a \ac{DP-NFDM} system is described in terms of \ac{DSP} blocks and optical setup. Finally, the results of the first experimental demonstration of a \ac{DP-NFDM} system are presented. Transmission over lumped amplification link up to \SI{375.5}{km} have been achieved showing the applicability of the proposed system.
+
+Chapter~\ref{ch:conclusion} summarize the results of the thesis and discusses some open challenges and future research directions for the \ac{NFT}-based communication systems.

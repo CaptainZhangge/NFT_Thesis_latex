@@ -1,0 +1,312 @@
+\section{NFT in the presence of losses and noise}
+The channel model described by the NLSE in \eqref{eq:NLSE} is a simplistic
+model and does not model properly existing fiber optics channel. Indeed, real
+channels are affected by noise and have losses.
+A more accurate form of the NLSE is
+
+%% .EQ. NLSE WITH LOSS %%
+\begin{equation}\label{eq:NLSE_with_loss}
+\frac{\partial \fld(\ttm,\ssp)}{\partial \ssp} =
+-i \frac{\dispersion}{2} \frac{\partial^2 \fld(\ttm,\ssp)}{\partial \ttm^2}
++ g(\ssp)\fld(\ttm,\ssp)
++ i\nonlinfact |\fld(\ttm,\ssp)|^2 \fld(\ttm,\ssp)
++ \asenoise(\ttm,\ssp)
+\end{equation}
+
+where $\asenoise(\ttm,\ssp)$ is the noise term and
+\begin{equation}
+ g(\ssp) = - \dfrac{\loss}{2} + g'(\ssp)
+\end{equation}
+is the gain-loss profile given by a combination of the losses, characterized by
+the attenuation coefficient of the fiber $\loss$ and the gain profile
+$g'(\ssp)$, which depend on the amplification scheme used. We assume that the
+fiber link is divided in spans of length $\spanl$ with the same amplification
+scheme applied to each span.
+
+By using advanced amplification techniques, such as DRA [REF], it is possible
+to obtain an almost flat gain profile over the entire link thus making $g(\ssp)
+= 1 $. In this way it is possible to make \eqref{eq:NLSE_with_loss} very close
+to the ideal lossless NLSE, but perturbed by noise, which for such
+amplification scheme can be particularly problematic given the high RIN transfer
+[REF].
+When EDFA amplification is used instead, we have $g(\ssp) = - \frac{\loss}{2} $
+for $0 < \ssp < \spanl$, where $L$ is the length of the fiber between two
+amplifiers.
+
+The presence of the two new terms makes \eqref{eq:NLSE_with_loss} not
+integrable, so that the NFT method does not provide exact analytical solutions
+anymore. Nonetheless, it has been shown that the NFT can still be used to .
+The way to remove the loss term, is to use the loss path-averaged method [REF]
+as follows: we first perform the change of variable
+\begin{equation}
+  \tilde{\fld}(\ttm,\ssp) \leftarrow{} \fld(\ttm,\ssp)G(z)^{\frac{1}{2}}
+\end{equation}
+with the total loss up to the point $\ssp$
+\begin{equation}
+  G(\ssp) = exp\left(2\int_{0}^{\ssp} g(\ssp') d\ssp' \right)
+\end{equation}
+in order to obtain
+\begin{equation}\label{eq:NLSE_with_loss_after_change_var}
+\pdv{\tilde{\fld}(\ttm,\ssp)}{\ssp} =
+-i \frac{\dispersion}{2} \pdv[2]{\tilde{\fld}(\ttm,\ssp)}{\ttm}
++ i\nonlinfact(\ssp) \abs{\tilde{\fld}(\ttm,\ssp)}^2 \tilde{\fld}(\ttm,\ssp)
++ \asenoise(\ttm,\ssp)
+\end{equation}
+with
+\begin{equation}
+ \nonlinfact(\ssp) = \nonlinfact G(\ssp)
+\end{equation}
+is a space dependent nonlinear coefficient.
+Finally by averaging this coefficient over one span length as
+\begin{equation}
+  \bar{\nonlinfact} = \dfrac{1}{\spanl}\int_{0}^{\spanl} \nonlinfact(\ssp) d\ssp
+\end{equation}
+we can write the \ac{LPA}~\ac{NLSE} as
+\begin{equation}\label{eq:NLSE_LPA}
+  \pdv{\tilde{\fld} (\ttm,\ssp)}{\ssp} =
+  -i \frac{\dispersion}{2} \pdv[2]{\tilde{\fld}(\ttm,\ssp)}{\ttm}
+  + i\bar{\nonlinfact}\abs{\tilde{\fld}(\ttm,\ssp)}^2 \tilde{\fld}(\ttm,\ssp)
+  + \asenoise(\ttm,\ssp)
+\end{equation}
+
+
+In the following section we numerically analyze in more details the effect of
+some system parameters (launch power, fiber attenuation, and additive white
+Gaussian (AWG) noise) on the \ac{NFT} continuous spectrum with the aim of
+comparing how the same effects affect the linear spectrum (discrete Fourier
+transform (DFT)). This is done by considering  a simple scenario of a single
+isolated Gaussian pulse propagating in a standard single mode fiber (SMF) and
+measuring the difference between its continuous nonlinear spectrum before and
+after transmission in terms of normalized mean squared error (NMSE). We show
+the stronger potential of the nonlinear spectrum for preserving itself along
+the transmission link when compared tothe DFT regardless of the presence of
+non-idealities such as fiber loss and noise.  The \ac{NFT} is thus a promising
+technique in scenarios where the spectrum preservation is desirable, such as
+multi channel systems using frequency-orthogonal channels.
+
+\iffalse % Already defined in previous sections
+\section{Nonlinear Fourier Transform}
+Assuming to operate in a normalized regime as the one used in
+\cite{YaousefiPartI}, to obtain the \ac{NFT}
+continuous spectrum \cnft{} starting from the normalized time waveform \nfld,
+we first need to solve the
+eigenvalue problem $Lv = \lambda v$, where $L$ is the
+isospectral operator associated to the nonlinear Schr\"odinger equation (NLSE).
+The eigenvalue problem can be
+simplified to the system of nonlinear equations
+
+\begin{equation}\label{eigenvalue.problem}
+\deriv{\vv}{t} = \matP v, \qquad v(t_1, \lambda)e^{-j \lambda t_1}
+\end{equation}
+and must be solved for a specific $\lambda$ on the interval $[t_1,t_2]$ over
+which \nfld is defined. By using
+the resulting vector $v(t_2)$ we can obtain the two \ac{NFT} coefficients
+$a(\lambda) = v_1(t_2)e^{-j\lambda t_2}$
+and $b(\lambda) = v_2(t_2)e^{j\lambda t_2}$ from which it's possible to compute
+the continuous spectrum of
+the \ac{NFT}
+$\hat{q}(\lambda) = \frac{b(\lambda)}{a(\lambda)}, \lambda \in \mathbb{R}$
+The continuous eigenvalues $\lambda$ are related to the linear spectrum
+frequencies $f$ by the relation
+$\lambda = \pi f$. Because of this in the next sections we'll compute \cnft{}
+over the interval $\left [-\pi
+\frac{Fc}{2}, \pi \frac{Fc}{2} \right ]$, in such a way to guarantee a more
+fairly comparison with the
+linear
+spectrum.
+
+The transfer function of the channel is $H(\lambda, z) =
+e^{-4j\lambda^2 z}$ and describes the evolution of the \ac{NFT} continuous
+spectrum propagating for a
+distance of $z$ as following
+$\hat{q}(t, z) = H(\lambda, z)  \hat{q}(t, 0)$
+\fi
+
+\subsection{Simulation setup}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{./img/setup.eps}
+  \caption{Simulation setup implemented in {Matlab\texttrademark}~and {VPI
+Transmission Maker\texttrademark}.
+Inset: \ac{NFT} and DFT spectra at input and output of the fiber lossless
+channel.}
+  \label{fig:setup}
+\end{figure}
+%
+The numerical simulation setup is depicted in \figurename~\ref{fig:setup} and
+has been performed in {Matlab\texttrademark}~and {VPI Transmission
+Maker\texttrademark}. The transmitter generates a single Gaussian pulse with 50
+ps full width at half maximum (FWHM). The simulation time window is 8~ns and the
+bandwidth 2.56~THz. This choice guarantees that the pulse is well isolated,
+condition required to properly compute the \ac{NFT}. An ideal laser with a
+carrier frequency of 192.4~THz is used. The input waveform $\fld[i]$ is
+transmitted over 1000 km (10$\times$100~km) of dispersion uncompensated SMF. The
+fiber is assumed to have a dispersion $D = 17~ps/nm{\cdot}km$ and a nonlinear
+coefficient $\gamma = 1.27~W^{-1}{\cdot}km^{-1}$. The fiber attenuation
+coefficient is either set to $\alpha = 0$ (lossless, ideal case) or $\alpha =
+0.2~dB/km$ (typical value for SMF). For a lossy channel, perfect attenuation
+compensation has been achieved by using Erbium-doped fiber amplifiers (EDFAs)
+after each span. EDFAs with no noise and with a noise figure of 3~dB are
+considered in two different scenarios. In the simulations where noise is
+present, the results have been averaged over 30 realizations and the standard
+error is shown with error bars. The propagation in the fiber is simulated using
+the split step Fourier method (SSFM) with an adaptive step size allowing a
+maximum phase rotation of 0.01~$deg$. At the fiber output, an ideal coherent
+receiver is assumed to give access to the full signal field $\fld[o]$.
+
+The \ac{NFT} continuous spectra $\cnft[i]$ and $\cnft[o]$  with $\lambda\in
+C^+$, of $\fld[i]$ and $\fld[o]$ respectively, are computed using the
+Ablowitz-Ladik method to solve the \ac{NFT} eigenvalue problem as described
+in~\cite{yousefi2014information}. When the channel is lossy and EDFA amplification is
+employed, the \ac{NFT} is computed using the loss path average (LPA) method
+described above. To compare input and output spectra, the channel inverse
+transfer function $H^{-1}(\lambda, z=1)$ is used to compensate for the channel
+propagation, $\cnft[i, est] = e^{4j\lambda^2}\cnft[o]$. The two spectra
+$\cnft[i]$ and $\cnft[i,est]$ are then compared using the NMSE as a metric:
+
+\begin{equation}
+ NMSE = \dfrac{ \bigintsss_{\lambda}
+ |\cnft[i] - \cnft[i,est]|^2}{\bigintsss_{\lambda}|\cnft[i]|^2}
+\end{equation}
+
+In order to benchmark the results, linear spectra are also calculated using
+standard DFT and the same NMSE metric is applied. In this case, electrical
+dispersion compensation (EDC) is applied to $\fld[o]$ as shown in
+\figurename~\ref{fig:setup}.
+
+\subsection{Results}
+
+To investigate the impact of noise on the \ac{NFT} spectrum, an ideal Gaussian
+pulse has been loaded with AWG noise corresponding to different levels of OSNR
+defined in a 0.1~nm bandwidth. The \ac{NFT} and DFT spectra have then been
+compared to their noiseless counterparts
+%at the input of a lossless channel
+% JUST ADD CONFUSION
+for three different power levels. The dependency of DFT NMSE
+and \ac{NFT} NMSE on the OSNR is depicted in \figurename~\ref{fig:osnrSweep}.
+%The NMSE is inversely proportional to the OSNR for both transformations.
+% IS IT USEFUL TO SAY SO?
+For low powers the DFT and \ac{NFT} spectra have similar shapes and it can be
+seen that they are similarly affected by noise. As the power increases to -12
+dBm, the \ac{NFT} is more affected by noise leading to NMSE values greater than
+those of the DFT.
+% WE HAVEN'T SAID THAT THE TWO SPECTRUM ARE EQUAL FOR LOW POWERS
+%
+\begin{figure}[htbp]
+\centering
+    \includegraphics[width=.8\textwidth]{./img/figure_2.eps}
+    \caption{NMSE between ideal and noise-loaded input spectra for \ac{NFT}
+    and DFT as a function of the OSNR.}
+    \label{fig:osnrSweep}
+    % \caption{NMSE of FFT and \ac{NFT} spectra as a function of input power after 1000 km of transmission.}
+\end{figure}
+
+In \figurename~\ref{fig:powersweep}~(a) the NMSE as a function of launch power
+is shown. In the lossless case, the DFT NMSE increases exponentially with the
+power due to the impact of self phase modulation (SPM). For power levels above
+-18~dBm, the relative error is higher than 10\% making the output spectrum
+diverge significantly from the input one. Note that SPM impairments are already
+so strong at this power, because the large guard time intervals used to account
+for dispersive effects significantly decrease the average power, however,
+nonlinear effects depend on the pulse peak power which is 22 dB higher than the
+average. Above -9~dBm the error flattens out to NMSE $ = 4$, i.e. the maximum
+NMSE between two spectra carrying the same energy. On the other hand, the
+\ac{NFT} NMSE remains practically constant and below a value of $2\times10^{-6}$
+for powers up to -10~dBm,
+%\note[id=SG]{Error floor \ac{NFT}: 2.52e-6, DFT: 5.87e-6 obtained for power < 40dBm. It's
+%not a real error floor since for higher powers we have a lower error at some point}
+while for powers above
+%this
+value it slightly increases, possibly due to the numerical precision required
+for the computation, as above -10~dBm most of the energy is transferred from the
+\ac{NFT} continuous spectrum to the discrete
+one~(\figurename~\ref{fig:powersweep}~(b)). Nevertheless the NMSE stays below a
+value of $10^{-4}$, proving the theoretically expected higher tolerance of the
+\ac{NFT} to nonlinear impairments. When fiber loss is taken into account and
+compensated for by noiseless amplification, the DFT matching improves compared
+to the lossless case as the effective nonlinearity is lowered by the presence of
+the losses. Such an improvement is not visible for the \ac{NFT}, which performs
+worse with respect to the lossless case due to the approximate equation used to
+compute the \ac{NFT} when the channel is lossy and therefore non-integrable. The
+NMSE exponential increase with power is consistent with~\cite{le2015nonlinear}.
+Nonetheless, the spectral mismatch between the \ac{NFT} spectra is still lower
+than that of the linear spectrum even in this non-ideal case.
+
+In the last scenario considered, the impact of power variations and noise are
+combined: the pulse has been transmitted over a lossy channel and EDFAs with a
+noise figure of 3~dB have been used to compensate for the power loss. In
+\figurename~\ref{fig:powersweep}~(a) the dependency of the NMSE as a function of
+the launch power, and the corresponding OSNR at the receiver
+%~\note[id=FDR]{We can fix this figure adding the OSNR as top axis,
+%I can help with that in case}
+, is shown. In the linear regime, the spectral matching increases with the power
+(NMSE decreases) for both DFT and \ac{NFT}. Once the power is increased beyond
+the linear transmission regime, the DFT NMSE worsens as nonlinearity impacts the
+spectral matching. The behavior of the \ac{NFT} is similar, but in this case the
+tolerance to nonlinearity is higher with the optimum launch power increased by
+3~dB %\note[id=FDR]{Is that correct? Check the minima} . For even higher power
+also the \ac{NFT} NMSE starts worsening. This is believed to be caused by the
+use of the LPA approximation
+%\note[id=FDR]{Are we sure about this?Aston people may complain :> This is what
+% we say above, citing them. There is a penalty that has an exponential
+%dependence on the power (red solid %curve of Figure 1)}
+. Note that the peak for -6~dBm launch power corresponds to the point where the
+first discrete eigenvalue appears, i.e., the point where the \ac{NFT} continuous
+spectrum energy is slightly different from the \ac{NFT} total energy
+%which causes the \ac{NFT} continuous spectrum to be ``peaky''
+(\figurename~\ref{fig:powersweep}~(d)). Overall, the
+NFT provides an NMSE decrease of a factor 2.85 compared to the DFT at the
+respective optimum launch powers, proving its potential for nonlinear
+transmission.
+% Even tough we cannot directly map the NMSE metric to the $Q^2$, this shows how
+% the \ac{NFT} used even in nonideal scenarios has the potential to provide improved performance compared to
+% modulation that rely on the linear spectrum.
+%
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=.8\textwidth]{./img/figure_1.eps}
+   \caption{NMSE between input and output (1000 km) spectrum for \ac{NFT}
+   and DFT (a),(c) and percentage of energy
+in the continuous \ac{NFT} spectrum (b),(d) as a function of the launch power
+for noiseless (a),(b) and noisy
+(c),(d) amplification.}
+    % \caption{NMSE of FFT and \ac{NFT} spectra as a function of input power
+    % after 1000 km of transmission.}
+    \label{fig:powersweep}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+   \includegraphics[width=.8\textwidth]{./img/figure_3.eps}
+   \caption{NMSE between input and output (1000 km) spectrum for \ac{NFT} and
+   DFT (a),(c) and percentage of energy
+in the continuous \ac{NFT} spectrum (b),(d) as a function of the launch power
+for noiseless (a),(b) and noisy
+(c),(d) amplification.}
+    % \caption{NMSE of FFT and \ac{NFT} spectra as a function of input power
+    % after 1000 km of transmission.}
+  \label{fig:powersweep_with_noise}
+\end{figure}
+
+\subsection{Conclusion}
+\linespread{1.2}
+%The effect of launch power, AWG noise and fiber loss on the \ac{NFT} continuous
+% spectrum has been investigated %comparing the NMSE between ideal and distorted
+% spectrum. The error has been compared against the performance %achievable using
+% DFT instead of \ac{NFT}.
+The impact of AWG noise on the NMSE of the \ac{NFT} and DFT shows a worsening of
+performance for the \ac{NFT} when high launch powers are used. However, a higher
+tolerance to nonlinearities, in terms of NMSE between input and output spectrum,
+is reported for the \ac{NFT}. Lower values are shown compared to the DFT.
+Finally when lossy and noisy transmission is considered, an improved spectral
+matching can be achieved by the \ac{NFT}. A decrease of the NMSE of almost three
+times as well as an increase in launch power by 3 dB compared to the DFT is
+demonstrated.
+% However, the \ac{NFT} shows a higher tolerance to loss with the NMSE between
+% input and output spectrum for % noiseless transmission showing lower values for
+% the \ac{NFT} compared to the DFT. Additionally, when lossy and noisy
+% transmission is considered, a better % spectral matching can be achieved using
+% the \ac{NFT} compared to the DFT, enabling a decrease of the NMSE of % almost
+% three times and an increase in launch power by 3~dB.
+

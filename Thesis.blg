@@ -1,0 +1,31 @@
+[0] Config.pm:302> INFO - This is Biber 2.10
+[0] Config.pm:305> INFO - Logfile is 'Thesis.blg'
+[33] biber:313> INFO - === ven feb  9, 2018, 14:28:40
+[60] Biber.pm:371> INFO - Reading 'Thesis.bcf'
+[168] Biber.pm:857> INFO - Found 69 citekeys in bib section 0
+[202] Biber.pm:3976> INFO - Processing section 0
+[216] Biber.pm:4136> INFO - Looking for bibtex format file 'bibliography/Bibliography.bib' for section 0
+[224] bibtex.pm:1490> INFO - LaTeX decoding ...
+[524] bibtex.pm:1306> INFO - Found BibTeX data source 'bibliography/Bibliography.bib'
+[536] Utils.pm:193> WARN - Duplicate entry key: 'armstrong2009ofdm' in file 'bibliography/Bibliography.bib', skipping ...
+[749] Utils.pm:193> WARN - month field 'jul' in entry 'Yousefi2014' is not an integer - this will probably not sort properly.
+[754] Utils.pm:193> WARN - month field 'jul' in entry 'Yousefi2014a' is not an integer - this will probably not sort properly.
+[841] Utils.pm:193> WARN - month field 'May' in entry 'HongKong' is not an integer - this will probably not sort properly.
+[1032] Utils.pm:193> WARN - ISBN '1539-4794' in entry 'Wai1991a' is invalid - run biber with '--validate_datamodel' for details.
+[1091] Utils.pm:193> WARN - month field 'Oct' in entry 'Goossens:17' is not an integer - this will probably not sort properly.
+[1154] Utils.pm:193> WARN - month field 'Apr' in entry 'Pfau:09' is not an integer - this will probably not sort properly.
+[1268] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[1269] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[1269] Biber.pm:3804> INFO - Sorting list 'ydnt/global/J/global/global' of type 'entry' with template 'ydnt' and locale 'en-US'
+[1269] Biber.pm:3810> INFO - No sort tailoring available for locale 'en-US'
+[1377] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[1377] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[1377] Biber.pm:3804> INFO - Sorting list 'ydnt/global/C/global/global' of type 'entry' with template 'ydnt' and locale 'en-US'
+[1377] Biber.pm:3810> INFO - No sort tailoring available for locale 'en-US'
+[1452] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[1452] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[1458] Biber.pm:3804> INFO - Sorting list 'none/global//global/global' of type 'entry' with template 'none' and locale 'en-US'
+[1458] Biber.pm:3810> INFO - No sort tailoring available for locale 'en-US'
+[1506] bbl.pm:617> INFO - Writing 'Thesis.bbl' with encoding 'UTF-8'
+[1607] bbl.pm:720> INFO - Output to Thesis.bbl
+[1607] Biber.pm:110> INFO - WARNINGS: 7

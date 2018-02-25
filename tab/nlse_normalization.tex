@@ -1,0 +1,245 @@
+%!TEX root = ../Thesis.tex
+%%%%%% .TAB. NLSEs NORMALIZED %%%%%%
+\tabulinesep=1.2mm
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MANSOOR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table*}[p]
+  \centering
+        \begin{tabu}{|c|c|}
+
+        \hline
+    %      & Agrawal & Yang  & Yousefi \\ \hline
+
+        %% ROW 2 (Normalized NLSE anomalous dispersion) %%
+        \makecell{Normalized NLSE \\ ($\dispersion< 0$, focusing)}&
+        %Normalized NLSE ($\dispersion< 0$, focusing)&
+        $\iunit\nfld[\nssp] - \nfld[\nttm\nttm] - 2|\nfld|^2\nfld = 0$
+        \\ \hline
+
+        %% ROW 3 [Hidden] (Normalized NLSE normal dispersion) %%
+    %     Normalized NLSE ($\dispersion> 0$, defocusing) &
+    %     $\iunit\nfld[\nssp] - \dfrac{1}{2}\nfld[\nttm\nttm] + |\nfld|^2\nfld = 0$ &
+    %     $\iunit\nfld[\nssp] - \nfld[\nttm\nttm] + 2|\nfld|^2\nfld = 0$ &
+    %     $\iunit\nfld[\nssp] + \nfld[\nttm\nttm] - 2|\nfld|^2\nfld = 0$
+    %     \\ \hline
+
+        %% ROW 4 (Change of variables) %%
+        Change of variables &
+        $\nfld = \dfrac{\fld}{\sqrt{P}}, \qquad \nttm = \dfrac{\ttm}{T_0}, \qquad
+        \nssp = -\dfrac{\ssp}{\nftcvL}$
+        \\
+
+        %% ROW 4bis (T0, P, L) %%
+        &
+        $T_0$ free,
+          \qquad $P = \dfrac{|\dispersion|}{\nonlinfact T_0^2}$, \qquad
+          $\nftcvL = \dfrac{2 T_0^2}{|\dispersion|}$
+        \\ \hline
+
+        %% ROW 5 (L operator) %%
+        L (operator) &
+        $\left( \begin{array}{cc} \iunit \pdv{\nttm} & -\iunit \nfld
+          \\ -\iunit \nfld^* & -\iunit \pdv{\nttm} \end{array}\right)$
+        \\ \hline
+
+        %% ROW 6 [Hidden] (M operator) %%
+    %     M (operator) &
+    %     $\left( \begin{array}{cc} \iunit\pdv[2]{\nttm}+\dfrac{\iunit}{2}|\nfld|^2 &
+    %     \nfld \pdv{\nttm} + \dfrac{1}{2}\nfld[\nttm]  \\
+    %     -\nfld^* \pdv{\nttm} - \dfrac{1}{2}\nfld[\nttm]^* &
+    %     - \iunit\pdv[2]{\nttm} -  \dfrac{\iunit}{2}|\nfld|^2 \end{array}\right)$ &
+    %     &
+    %    \\ \hline
+
+        %% ROW 7 (P matrix) %%
+        P (matrix) &
+        $\left( \begin{array}{cc} -\iunit\eig &
+           \nfld  \\
+          \nfld^* &
+          \iunit\eig \end{array}\right)$
+        \\ \hline
+
+        %% ROW 8 (M matrix) %%
+        M (matrix) &
+        $\left( \begin{array}{cc} 2\iunit\eig^2 - \iunit|\nfld|^2 &
+          - 2\eig\nfld - \iunit\nfld[\nttm] \\
+          2\eig\nfld^* - \iunit\nfld[\nttm]^* &
+          - 2\iunit\eig^2 + \iunit|\nfld|^2 \end{array}\right)$
+        \\ \hline
+
+        % ROW 9 (Space evolution equation) %%
+    %     Space evolution (unsure) &
+    %     e^{-2\iunit\eig^2\nssp} &
+    %     e^{4\iunit\eig^2\nssp} [Yang: -4, Ablowitz74: -2, Zakharov-Shabat70 (p66): -4]
+    %     & e^{-4\iunit\eig^2\nssp}
+    %     \\ \hline
+
+            %% ROW 1 (References) %%
+
+        \end{tabu}
+  \caption{Normalized \ac{NLSE} used in this thesis and in \cite{Yousefi2014,Ablowitz2004a,Docksey2000a,hari2016multieigenvalue,
+tavakkolnia2015signalling}, corresponding change of variables, Lax operator $\matL$, and Lax pair $\matP, \matM$. The standard simplified notation for the partial derivatives is used, and the explicit dependency on $\nssp$ and $\nttm$ is omitted}
+  \label{tab:normalizations_comparison_mansoor}
+\end{table*}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AGRAWAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table*}[p]
+  \centering
+      \begin{tabu}{|c|c|}
+
+        \hline
+    %      & Agrawal & Yang  & Yousefi \\ \hline
+
+        %% ROW 2 (Normalized NLSE anomalous dispersion) %%
+        \makecell{Normalized NLSE \\ ($\dispersion< 0$, focusing)}&
+        %Normalized NLSE ($\dispersion< 0$, focusing)&
+        $\iunit\nfld[\nssp] + \dfrac{1}{2}\nfld[\nttm\nttm] + |\nfld|^2\nfld = 0$
+        \\ \hline
+
+        %% ROW 3 [Hidden] (Normalized NLSE normal dispersion) %%
+    %     Normalized NLSE ($\dispersion> 0$, defocusing) &
+    %     $\iunit\nfld[\nssp] - \dfrac{1}{2}\nfld[\nttm\nttm] + |\nfld|^2\nfld = 0$ &
+    %     $\iunit\nfld[\nssp] - \nfld[\nttm\nttm] + 2|\nfld|^2\nfld = 0$ &
+    %     $\iunit\nfld[\nssp] + \nfld[\nttm\nttm] - 2|\nfld|^2\nfld = 0$
+    %     \\ \hline
+
+        %% ROW 4 (Change of variables) %%
+        Change of variables &
+        $\nfld = \dfrac{\fld}{\sqrt{P}}, \qquad \nttm = \dfrac{\ttm}{T_0}, \qquad
+        \nssp =  \dfrac{\ssp}{\nftcvL}$
+        \\
+
+        %% ROW 4bis (T0, P, L) %%
+        &
+        $T_0$ free,
+          \qquad $P = \dfrac{|\dispersion|}{\nonlinfact T_0^2}$, \qquad
+          $\nftcvL = \dfrac{T_0^2}{|\dispersion|}$
+        \\ \hline
+
+        %% ROW 5 (L operator) %%
+        L (operator) &
+        $\left( \begin{array}{cc} \iunit \pdv{\nttm} &
+          \nfld  \\ - \nfld^* & -\iunit \pdv{\nttm} \end{array}\right)$
+        \\ \hline
+
+        %% ROW 6 [Hidden] (M operator) %%
+    %     M (operator) &
+    %     $\left( \begin{array}{cc} \iunit\pdv[2]{\nttm}+\dfrac{\iunit}{2}|\nfld|^2 &
+    %     \nfld \pdv{\nttm} + \dfrac{1}{2}\nfld[\nttm]  \\
+    %     -\nfld^* \pdv{\nttm} - \dfrac{1}{2}\nfld[\nttm]^* &
+    %     - \iunit\pdv[2]{\nttm} -  \dfrac{\iunit}{2}|\nfld|^2 \end{array}\right)$ &
+    %     &
+    %    \\ \hline
+
+        %% ROW 7 (P matrix) %%
+        P (matrix) &
+        $\left( \begin{array}{cc} -\iunit\eig &
+          \iunit \nfld  \\
+          \iunit\nfld^* &
+          \iunit\eig \end{array}\right)$
+        \\ \hline
+
+        %% ROW 8 (M matrix) %%
+        M (matrix) &
+        $\left( \begin{array}{cc} \iunit\eig^2 + \dfrac{\iunit}{2}|\nfld|^2 &
+          \iunit\eig\nfld - \dfrac{1}{2}\nfld[\nttm]  \\
+          \iunit\eig\nfld^* + \dfrac{1}{2}\nfld[\nttm]^2 &
+          \iunit \eig^2 - \dfrac{\iunit}{2}|\nfld|^2 \end{array}\right)$
+        \\ \hline
+
+        % ROW 9 (Space evolution equation) %%
+    %     Space evolution (unsure) &
+    %     e^{-2\iunit\eig^2\nssp} &
+    %     e^{4\iunit\eig^2\nssp} [Yang: -4, Ablowitz74: -2, Zakharov-Shabat70 (p66): -4]
+    %     & e^{-4\iunit\eig^2\nssp}
+    %     \\ \hline
+
+            %% ROW 1 (References) %%
+
+        \end{tabu}
+  \caption{Normalized \ac{NLSE} used in \cite{Agrawal12_NonlinearFOs_Book,hasegawa1995solitons,Hasegawa,
+prilepsky2013nonlinear,desbruslais1996inverse}, corresponding change of variables, Lax operator $\matL$, and Lax pair $\matP, \matM$. The standard simplified notation for the partial derivatives is used, and the explicit dependency on $\nssp$ and $\nttm$ is omitted}
+  \label{tab:normalizations_comparison_agrawal}
+\end{table*}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% YANG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table*}[p]
+  \centering
+        \begin{tabu}{|c|c|}
+
+        \hline
+    %      & Agrawal & Yang  & Yousefi \\ \hline
+
+        %% ROW 2 (Normalized NLSE anomalous dispersion) %%
+        \makecell{Normalized NLSE \\ ($\dispersion< 0$, focusing)}&
+        %Normalized NLSE ($\dispersion< 0$, focusing)&
+        $\iunit\nfld[\nssp] + \nfld[\nttm\nttm] + 2|\nfld|^2\nfld = 0$
+        \\ \hline
+
+        %% ROW 3 [Hidden] (Normalized NLSE normal dispersion) %%
+    %     Normalized NLSE ($\dispersion> 0$, defocusing) &
+    %     $\iunit\nfld[\nssp] - \dfrac{1}{2}\nfld[\nttm\nttm] + |\nfld|^2\nfld = 0$ &
+    %     $\iunit\nfld[\nssp] - \nfld[\nttm\nttm] + 2|\nfld|^2\nfld = 0$ &
+    %     $\iunit\nfld[\nssp] + \nfld[\nttm\nttm] - 2|\nfld|^2\nfld = 0$
+    %     \\ \hline
+
+        %% ROW 4 (Change of variables) %%
+        Change of variables &
+        $\nfld = \dfrac{\fld}{\sqrt{P}}, \qquad \nttm = \dfrac{\ttm}{T_0}, \qquad
+        \nssp =  \dfrac{\ssp}{\nftcvL}$
+        \\
+
+        %% ROW 4bis (T0, P, L) %%
+        &
+        $T_0$ free,
+          \qquad $P = \dfrac{|\dispersion|}{\nonlinfact T_0^2}$, \qquad
+          $\nftcvL = \dfrac{2 T_0^2}{|\dispersion|}$
+        \\ \hline
+
+        %% ROW 5 (L operator) %%
+        L (operator) &
+        $\left( \begin{array}{cc} \iunit \ \pdv{\nttm} & -\iunit \nfld
+          \\ -\iunit \nfld^* & -\iunit \pdv{\nttm} \end{array}\right)$
+        \\ \hline
+
+        %% ROW 6 [Hidden] (M operator) %%
+    %     M (operator) &
+    %     $\left( \begin{array}{cc} \iunit\pdv[2]{\nttm}+\dfrac{\iunit}{2}|\nfld|^2 &
+    %     \nfld \pdv{\nttm} + \dfrac{1}{2}\nfld[\nttm]  \\
+    %     -\nfld^* \pdv{\nttm} - \dfrac{1}{2}\nfld[\nttm]^* &
+    %     - \iunit\pdv[2]{\nttm} -  \dfrac{\iunit}{2}|\nfld|^2 \end{array}\right)$ &
+    %     &
+    %    \\ \hline
+
+        %% ROW 7 (P matrix) %%
+        P (matrix) &
+        $\left( \begin{array}{cc} -\iunit\eig &
+          \nfld  \\
+          - \nfld^* &
+          \iunit\eig \end{array}\right)$
+        \\ \hline
+
+        %% ROW 8 (M matrix) %%
+        M (matrix) &
+        $\left( \begin{array}{cc} -2\iunit\eig^2 + \iunit|\nfld|^2 &
+          2\eig\nfld + \iunit\nfld[\nttm] \\
+          - 2\eig\nfld^* + \iunit\nfld[\nttm]^* &
+          2\iunit\eig^2 - \iunit|\nfld|^2 \end{array}\right)$
+        \\ \hline
+
+        % ROW 9 (Space evolution equation) %%
+    %     Space evolution (unsure) &
+    %     e^{-2\iunit\eig^2\nssp} &
+    %     e^{4\iunit\eig^2\nssp} [Yang: -4, Ablowitz74: -2, Zakharov-Shabat70 (p66): -4]
+    %     & e^{-4\iunit\eig^2\nssp}
+    %     \\ \hline
+
+            %% ROW 1 (References) %%
+
+        \end{tabu}
+   \caption{Normalized \ac{NLSE} used in \cite{ablowitz1974inverse,Yang10_Book,Buelow}, corresponding change of variables, Lax operator $\matL$, and Lax pair $\matP, \matM$. The standard simplified notation for the partial derivatives is used, and the explicit dependency on $\nssp$ and $\nttm$ is omitted}
+  \label{tab:normalizations_comparison_yang}
+\end{table*}

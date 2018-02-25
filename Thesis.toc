@@ -1,0 +1,42 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\defcounter {refsection}{0}\relax 
+\select@language {english}
+\contentsline {chapter}{Abstract}{i}{chapter*.1}
+\contentsline {chapter}{Preface}{iii}{chapter*.4}
+\contentsline {chapter}{Acknowledgements}{v}{chapter*.5}
+\contentsline {chapter}{Ph.D. Publications}{ix}{chapter*.6}
+\contentsline {chapter}{Acronyms}{xiii}{chapter*.10}
+\contentsline {chapter}{List of frequently used symbols}{xvii}{chapter*.11}
+\contentsline {chapter}{\chapternumberline {1}Nonlinear frequency division multiplexing}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}Transmitter}{2}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}Bit mapper and constellation design}{3}{subsection.1.1.1}
+\contentsline {paragraph}{Eigenvalues placement}{5}{section*.23}
+\contentsline {paragraph}{Choice of the $\nftb [][i]$ constellations}{6}{section*.24}
+\contentsline {subsection}{\numberline {1.1.2}INFT}{8}{subsection.1.1.2}
+\contentsline {subsection}{\numberline {1.1.3}Signal denormalization}{9}{subsection.1.1.3}
+\contentsline {subsection}{\numberline {1.1.4}Transmitter transfer function pre-distortion}{10}{subsection.1.1.4}
+\contentsline {section}{\numberline {1.2}Receiver}{12}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}Signal amplitude rescaling}{13}{subsection.1.2.1}
+\contentsline {subsection}{\numberline {1.2.2}Signal filtering}{15}{subsection.1.2.2}
+\contentsline {subsection}{\numberline {1.2.3}Clock recovery and frame synchronization}{16}{subsection.1.2.3}
+\contentsline {subsection}{\numberline {1.2.4}Computing the \ac {NFT}}{17}{subsection.1.2.4}
+\contentsline {subsection}{\numberline {1.2.5}Phase estimation}{20}{subsection.1.2.5}
+\contentsline {subsection}{\numberline {1.2.6}Symbol decisor}{20}{subsection.1.2.6}
+\contentsline {section}{\numberline {1.3}Summary}{23}{section.1.3}
+\contentsline {chapter}{\chapternumberline {2}Dual polarization \acl {NFDM}}{25}{chapter.2}
+\contentsline {section}{\numberline {2.1}Introduction}{25}{section.2.1}
+\contentsline {section}{\numberline {2.2}Mathematical framework}{26}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Channel model}{26}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}Inverse scattering auxiliary problem}{27}{subsection.2.2.2}
+\contentsline {subsection}{\numberline {2.2.3}Direct NFT}{28}{subsection.2.2.3}
+\contentsline {subsection}{\numberline {2.2.4}Inverse NFT}{29}{subsection.2.2.4}
+\contentsline {section}{\numberline {2.3}Numerical methods}{30}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}The trapezoidal discretization method}{31}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Forward-backward method}{33}{subsection.2.3.2}
+\contentsline {section}{\numberline {2.4}Dual polarization nonlinear frequency division multiplexing system}{34}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Constellations selection}{35}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}Transmitter and receiver digital signal processing}{38}{subsection.2.4.2}
+\contentsline {subsection}{\numberline {2.4.3}Experimental setup}{40}{subsection.2.4.3}
+\contentsline {section}{\numberline {2.5}Experimental results}{42}{section.2.5}
+\contentsline {section}{\numberline {2.6}Summary}{46}{section.2.6}
+\contentsline {chapter}{Bibliography}{49}{section*.81}
